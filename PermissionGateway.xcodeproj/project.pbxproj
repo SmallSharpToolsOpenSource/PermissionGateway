@@ -48,6 +48,8 @@
 		260CA2C61B7939210038839F /* PGPermissionGatewayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PGPermissionGatewayViewController.h; path = Lib/PGPermissionGatewayViewController.h; sourceTree = "<group>"; };
 		260CA2C71B7939220038839F /* PGPermissionGatewayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PGPermissionGatewayViewController.m; path = Lib/PGPermissionGatewayViewController.m; sourceTree = "<group>"; };
 		26499D2A1B7B289A00985D16 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		26499D2B1B7B2C2000985D16 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
+		26499D301B7B2C6100985D16 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		266547A41B7A6B5100476CA3 /* Macros.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Macros.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -205,6 +207,8 @@
 			knownRegions = (
 				en,
 				Base,
+				de,
+				ja,
 			);
 			mainGroup = 260CA2901B7920650038839F;
 			productRefGroup = 260CA29A1B7920660038839F /* Products */;
@@ -290,6 +294,8 @@
 			isa = PBXVariantGroup;
 			children = (
 				26499D2A1B7B289A00985D16 /* en */,
+				26499D2B1B7B2C2000985D16 /* de */,
+				26499D301B7B2C6100985D16 /* ja */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
