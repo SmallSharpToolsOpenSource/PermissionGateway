@@ -14,6 +14,9 @@
 		260CA2AA1B7920660038839F /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 260CA2A91B7920660038839F /* Images.xcassets */; };
 		260CA2AD1B7920660038839F /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 260CA2AB1B7920660038839F /* LaunchScreen.xib */; };
 		260CA2B91B7920660038839F /* PermissionGatewayTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 260CA2B81B7920660038839F /* PermissionGatewayTests.m */; };
+		260CA2C51B7939010038839F /* PGPermissionGateway.m in Sources */ = {isa = PBXBuildFile; fileRef = 260CA2C41B7939010038839F /* PGPermissionGateway.m */; };
+		260CA2C81B7939220038839F /* PGPermissionGatewayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 260CA2C71B7939220038839F /* PGPermissionGatewayViewController.m */; };
+		266547A71B7B286B00476CA3 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 266547A91B7B286B00476CA3 /* Localizable.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,6 +43,12 @@
 		260CA2B21B7920660038839F /* PermissionGatewayTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PermissionGatewayTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		260CA2B71B7920660038839F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		260CA2B81B7920660038839F /* PermissionGatewayTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PermissionGatewayTests.m; sourceTree = "<group>"; };
+		260CA2C31B7939010038839F /* PGPermissionGateway.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PGPermissionGateway.h; path = Lib/PGPermissionGateway.h; sourceTree = "<group>"; };
+		260CA2C41B7939010038839F /* PGPermissionGateway.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PGPermissionGateway.m; path = Lib/PGPermissionGateway.m; sourceTree = "<group>"; };
+		260CA2C61B7939210038839F /* PGPermissionGatewayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PGPermissionGatewayViewController.h; path = Lib/PGPermissionGatewayViewController.h; sourceTree = "<group>"; };
+		260CA2C71B7939220038839F /* PGPermissionGatewayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PGPermissionGatewayViewController.m; path = Lib/PGPermissionGatewayViewController.m; sourceTree = "<group>"; };
+		26499D2A1B7B289A00985D16 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		266547A41B7A6B5100476CA3 /* Macros.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Macros.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,13 +90,15 @@
 		260CA29B1B7920660038839F /* PermissionGateway */ = {
 			isa = PBXGroup;
 			children = (
+				260CA2C21B7938D30038839F /* Lib */,
+				266547A41B7A6B5100476CA3 /* Macros.h */,
 				260CA2A01B7920660038839F /* AppDelegate.h */,
 				260CA2A11B7920660038839F /* AppDelegate.m */,
 				260CA2A31B7920660038839F /* ViewController.h */,
 				260CA2A41B7920660038839F /* ViewController.m */,
 				260CA2A61B7920660038839F /* Main.storyboard */,
-				260CA2A91B7920660038839F /* Images.xcassets */,
 				260CA2AB1B7920660038839F /* LaunchScreen.xib */,
+				260CA2A91B7920660038839F /* Images.xcassets */,
 				260CA29C1B7920660038839F /* Supporting Files */,
 			);
 			path = PermissionGateway;
@@ -96,6 +107,7 @@
 		260CA29C1B7920660038839F /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				266547A91B7B286B00476CA3 /* Localizable.strings */,
 				260CA29D1B7920660038839F /* Info.plist */,
 				260CA29E1B7920660038839F /* main.m */,
 			);
@@ -117,6 +129,17 @@
 				260CA2B71B7920660038839F /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		260CA2C21B7938D30038839F /* Lib */ = {
+			isa = PBXGroup;
+			children = (
+				260CA2C61B7939210038839F /* PGPermissionGatewayViewController.h */,
+				260CA2C71B7939220038839F /* PGPermissionGatewayViewController.m */,
+				260CA2C31B7939010038839F /* PGPermissionGateway.h */,
+				260CA2C41B7939010038839F /* PGPermissionGateway.m */,
+			);
+			name = Lib;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -200,6 +223,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				260CA2A81B7920660038839F /* Main.storyboard in Resources */,
+				266547A71B7B286B00476CA3 /* Localizable.strings in Resources */,
 				260CA2AD1B7920660038839F /* LaunchScreen.xib in Resources */,
 				260CA2AA1B7920660038839F /* Images.xcassets in Resources */,
 			);
@@ -220,6 +244,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				260CA2A51B7920660038839F /* ViewController.m in Sources */,
+				260CA2C81B7939220038839F /* PGPermissionGatewayViewController.m in Sources */,
+				260CA2C51B7939010038839F /* PGPermissionGateway.m in Sources */,
 				260CA2A21B7920660038839F /* AppDelegate.m in Sources */,
 				260CA29F1B7920660038839F /* main.m in Sources */,
 			);
@@ -258,6 +284,14 @@
 				260CA2AC1B7920660038839F /* Base */,
 			);
 			name = LaunchScreen.xib;
+			sourceTree = "<group>";
+		};
+		266547A91B7B286B00476CA3 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				26499D2A1B7B289A00985D16 /* en */,
+			);
+			name = Localizable.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -418,6 +452,7 @@
 				260CA2BE1B7920660038839F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		260CA2BF1B7920660038839F /* Build configuration list for PBXNativeTarget "PermissionGatewayTests" */ = {
 			isa = XCConfigurationList;
@@ -426,6 +461,7 @@
 				260CA2C11B7920660038839F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

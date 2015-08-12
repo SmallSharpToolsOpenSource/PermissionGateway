@@ -1,0 +1,55 @@
+/* 
+  Localization.strings
+  PermissionGateway
+
+  Created by Brennan Stehling on 8/11/15.
+  Copyright (c) 2015 Brennan Stehling. All rights reserved.
+*/
+
+/* Permission Undefined */
+"Permission Undefined" = "Undefined";
+
+/* Permission Gateway Denied */
+"Permission Gateway Denied" = "Gateway Denied";
+
+/* Permission Granted */
+"Permission Granted" = "Granted";
+
+/* Permission Denied */
+"Permission Denied" = "Denied";
+
+/* Photo Permission Title */
+"Photo Permission Title" = "Photo";
+
+/* Photo Permission Body */
+"Photo Permission Body" = "Would you like to allow this app access to your photos?";
+
+/* Camera Permission Title */
+"Camera Permission Title" = "Camera";
+
+/* Camera Permission Body */
+"Camera Permission Body" = "Would you like to allow this app access to your camera?";
+
+/* Microphone Permission Title */
+"Microphone Permission Title" = "Microphone";
+
+/* Microphone Permission Body */
+"Microphone Permission Body" = "Would you like to allow this app access to your microphone?";
+
+/* Notification Permission Title */
+"Notification Permission Title" = "Notification";
+
+/* Notification Permission Body */
+"Notification Permission Body" = "Would you like to allow this app send notifications?";
+
+/* Contacts Permission Title */
+"Contacts Permission Title" = "Contacts";
+
+/* Contacts Permission Body */
+"Contacts Permission Body" = "Would you like to allow this app access to your contacts?";
+
+/* Location Permission Title */
+"Location Permission Title" = "Location";
+
+/* Location Permission Body */
+"Location Permission Body" = "Would you like to allow this app access to your location?";

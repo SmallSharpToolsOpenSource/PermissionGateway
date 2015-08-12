@@ -1,14 +1,14 @@
 //
-//  ViewController.h
+//  PermissionGatewayViewController.h
 //  PermissionGateway
 //
 //  Created by Brennan Stehling on 8/10/15.
 //  Copyright (c) 2015 Brennan Stehling. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+@import Foundation;
+@import UIKit;
 
-@interface ViewController : UIViewController
+@interface PGPermissionGatewayViewController : UIViewController
 
 @end
-

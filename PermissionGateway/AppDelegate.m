@@ -8,15 +8,43 @@
 
 #import "AppDelegate.h"
 
+#import "Macros.h"
+#import "PGPermissionGateway.h"
+
 @interface AppDelegate ()
 
 @end
 
 @implementation AppDelegate
 
-
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    
+    if (EnvVarIsTrue(@"ForceFirstLaunch")) {
+        DebugLog(@"Forcing first launch");
+    }
+    else {
+        DebugLog(@"Business as usual");
+    }
+
+    if (EnvVarIsTrue(@"DebugEnabled")) {
+        DebugLog(@"Debug is enabled");
+        DebugLog(@"username: %@", EnvVarString(@"DebugUsername"));
+        DebugLog(@"password: %@", EnvVarString(@"DebugPassword"));
+    }
+    else {
+        DebugLog(@"Debug is not enabled");
+    }
+    
+//    DebugLog(@"Locales: %@", [NSLocale availableLocaleIdentifiers]);
+    
+    NSLocale *locale = [NSLocale currentLocale];
+    NSString *countryCode = [locale objectForKey: NSLocaleCountryCode];
+    NSLocale *usLocale = [NSLocale localeWithLocaleIdentifier:@"en_US"];
+    NSString *country = [usLocale displayNameForKey: NSLocaleCountryCode value: countryCode];
+    
+    DebugLog(@"country: %@", country);
+    
     return YES;
 }
 
@@ -40,6 +68,14 @@
 
 - (void)applicationWillTerminate:(UIApplication *)application {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+}
+
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    [[PGPermissionGateway sharedInstance] saveNotificationDeviceToken:deviceToken];
+}
+
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+    [[PGPermissionGateway sharedInstance] reportNotificationRegistrationError:error];
 }
 
 @end
