@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14E46" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="d4y-BK-xi0">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
+        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
+    </dependencies>
+    <scenes>
+        <!--Permission Gateway-->
+        <scene sceneID="A6H-bi-yLt">
+            <objects>
+                <viewController id="GGc-zi-dF2" customClass="PGPermissionGatewayViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="CRL-xt-OYB"/>
+                        <viewControllerLayoutGuide type="bottom" id="9HT-DW-aTI"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="PKa-nV-OgX">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bgl-BJ-dBh" userLabel="Buttons View">
+                                <rect key="frame" x="250" y="534" width="100" height="46"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="F03-bz-I8x" userLabel="Allow Button">
+                                        <rect key="frame" x="8" y="8" width="38" height="30"/>
+                                        <state key="normal" title="Allow">
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="allowButtonTapped:" destination="GGc-zi-dF2" eventType="touchUpInside" id="4xf-xx-8ht"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iLV-Zl-gjt" userLabel="Deny Button">
+                                        <rect key="frame" x="54" y="8" width="38" height="30"/>
+                                        <state key="normal" title="Deny">
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="denyButtonTapped:" destination="GGc-zi-dF2" eventType="touchUpInside" id="LlU-Qf-z7G"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstItem="F03-bz-I8x" firstAttribute="leading" secondItem="bgl-BJ-dBh" secondAttribute="leading" constant="8" id="2V0-VU-qWl"/>
+                                    <constraint firstAttribute="bottom" secondItem="iLV-Zl-gjt" secondAttribute="bottom" constant="8" id="C6C-IV-pMP"/>
+                                    <constraint firstItem="iLV-Zl-gjt" firstAttribute="leading" secondItem="F03-bz-I8x" secondAttribute="trailing" constant="8" id="Lzc-jT-PFB"/>
+                                    <constraint firstItem="iLV-Zl-gjt" firstAttribute="top" secondItem="bgl-BJ-dBh" secondAttribute="top" constant="8" id="RBJ-Tp-fKx"/>
+                                    <constraint firstItem="iLV-Zl-gjt" firstAttribute="width" secondItem="F03-bz-I8x" secondAttribute="width" id="W9P-L2-Glw"/>
+                                    <constraint firstAttribute="trailing" secondItem="iLV-Zl-gjt" secondAttribute="trailing" constant="8" id="pnE-Dp-z6q"/>
+                                    <constraint firstItem="iLV-Zl-gjt" firstAttribute="centerY" secondItem="F03-bz-I8x" secondAttribute="centerY" id="uqQ-Y0-iuH"/>
+                                </constraints>
+                            </view>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Permission Body" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wO0-26-Wwg">
+                                <rect key="frame" x="20" y="215" width="560" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="centerY" secondItem="wO0-26-Wwg" secondAttribute="centerY" multiplier="4:3" id="I1k-mv-Z8e"/>
+                            <constraint firstItem="9HT-DW-aTI" firstAttribute="top" secondItem="bgl-BJ-dBh" secondAttribute="bottom" constant="20" id="W7W-AF-zhd"/>
+                            <constraint firstAttribute="centerX" secondItem="bgl-BJ-dBh" secondAttribute="centerX" id="Xlv-Ka-9dA"/>
+                            <constraint firstItem="wO0-26-Wwg" firstAttribute="leading" secondItem="PKa-nV-OgX" secondAttribute="leading" constant="20" id="qGa-pH-dty"/>
+                            <constraint firstAttribute="centerX" secondItem="wO0-26-Wwg" secondAttribute="centerX" id="zDd-RM-Sj5"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="Permission Gateway" id="IpX-TH-Rcy">
+                        <barButtonItem key="leftBarButtonItem" title="cancel" id="Q5K-t1-oYc">
+                            <connections>
+                                <action selector="cancelButtonTapped:" destination="GGc-zi-dF2" id="3hv-A3-Nil"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="permissionBodyLabel" destination="wO0-26-Wwg" id="Akk-N7-6L1"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="JzE-sT-acp" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1186" y="387"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="f7M-A2-PZ7">
+            <objects>
+                <navigationController storyboardIdentifier="PermissionNavigationController" automaticallyAdjustsScrollViewInsets="NO" id="d4y-BK-xi0" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="ySb-ux-tnR">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="GGc-zi-dF2" kind="relationship" relationship="rootViewController" id="vEQ-FO-cXw"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="YqC-f9-4tl" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="374" y="387"/>
+        </scene>
+    </scenes>
+</document>

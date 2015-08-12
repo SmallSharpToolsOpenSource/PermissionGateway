@@ -34,29 +34,35 @@
                          @{
                              @"title" : @"Photo Permission Title",
                              @"body" : @"Photo Permission Body",
-                             @"permission" : [NSNumber numberWithUnsignedInteger:PGRequestedPermissionPhoto] },
+                             @"permission" : @(PGRequestedPermissionPhoto) },
                          @{
                              @"title" : @"Camera Permission Title",
                              @"body" : @"Camera Permission Body",
-                             @"permission" : [NSNumber numberWithUnsignedInteger:PGRequestedPermissionCamera] },
+                             @"permission" : @(PGRequestedPermissionCamera) },
                          @{
                              @"title" : @"Microphone Permission Title",
                              @"body" : @"Microphone Permission Body",
-                             @"permission" : [NSNumber numberWithUnsignedInteger:PGRequestedPermissionMicrophone] },
+                             @"permission" : @(PGRequestedPermissionMicrophone) },
                          @{
                              @"title" : @"Notification Permission Title",
                              @"body" : @"Notification Permission Body",
-                             @"permission" : [NSNumber numberWithUnsignedInteger:PGRequestedPermissionNotification] },
+                             @"permission" : @(PGRequestedPermissionNotification) },
                          @{
                              @"title" : @"Contacts Permission Title",
                              @"body" : @"Contacts Permission Body",
-                             @"permission" : [NSNumber numberWithUnsignedInteger:PGRequestedPermissionContacts] },
+                             @"permission" : @(PGRequestedPermissionContacts) },
                          @{
                              @"title" : @"Location Permission Title",
                              @"body" : @"Location Permission Body",
-                             @"permission" : [NSNumber numberWithUnsignedInteger:PGRequestedPermissionLocation] }
+                             @"permission" : @(PGRequestedPermissionLocation) }
                        ];
     
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    [self.tableView reloadData];
 }
 
 #pragma mark - Private
@@ -116,6 +122,13 @@
 #pragma mark -
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSDictionary *permission = self.permissions[indexPath.row];
+    PGRequestedPermission requestedPermission = (PGRequestedPermission)[permission[@"permission"] unsignedIntegerValue];
+    
+    [PGPermissionGateway presentPermissionGetwayInViewController:self forRequestedPermission:requestedPermission withCompletionBlock:^{
+        DebugLog(@"Presented Permission Gateway");
+    }];
+    
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.25 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
         [tableView deselectRowAtIndexPath:indexPath animated:YES];
     });

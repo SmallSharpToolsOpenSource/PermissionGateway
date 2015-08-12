@@ -8,6 +8,8 @@
 
 #import "PGPermissionGateway.h"
 
+#import "PGPermissionGatewayViewController.h"
+
 NSString * const PromptStatusPrefix = @"PromptStatus_";
 NSString * const PromptStatusAccepted = @"Accepted";
 NSString * const PromptStatusDeclined = @"Declined";
@@ -28,6 +30,8 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
 @interface PGPermissionGateway () <CLLocationManagerDelegate>
 
 @property (nonatomic, copy) PGCompletionBlock completionBlock;
+
+@property (nonatomic, strong) CLLocationManager *locationManager;
 
 @end
 
@@ -74,6 +78,27 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     return PGPermissionStatusNone;
 }
 
+- (void)requestPermission:(PGRequestedPermission)requestedPermission withCompletionBlock:(void (^)(BOOL authorized, NSError *error))completionBlock {
+    if (requestedPermission == PGRequestedPermissionPhoto) {
+        [self requestPhotosAuthorizationWithCompletionBlock:completionBlock];
+    }
+    else if (requestedPermission == PGRequestedPermissionCamera) {
+        [self requestCameraAuthorizationWithCompletionBlock:completionBlock];
+    }
+    else if (requestedPermission == PGRequestedPermissionMicrophone) {
+        [self requestMicrophoneAuthorizationWithCompletionBlock:completionBlock];
+    }
+    else if (requestedPermission == PGRequestedPermissionNotification) {
+        [self requestNotificationAuthorizationWithCompletionBlock:completionBlock];
+    }
+    else if (requestedPermission == PGRequestedPermissionContacts) {
+        [self requestContactsAuthorizationWithCompletionBlock:completionBlock];
+    }
+    else if (requestedPermission == PGRequestedPermissionLocation) {
+        [self requestLocationAuthorizationWithCompletionBlock:completionBlock];
+    }
+}
+
 - (void)presentGatewayPromptForPermission:(PGRequestedPermission)requestedPermission viewController:(UIViewController *)viewController withCompletionBlock:(void (^)(PGPermissionStatus status, NSError *error))completionBlock {
     if (!completionBlock) {
         NSParameterAssert(completionBlock != NULL);
@@ -81,26 +106,28 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     }
     
     // 1) instantiate the modal scene
-    // 2) add the gateway as the delegate
+    // 2) add the gateway as the delegate?
 }
 
 - (UIUserNotificationSettings *)notificationSettings {
     UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeAlert|UIUserNotificationTypeBadge|UIUserNotificationTypeSound categories:nil];
     
-        return settings;
+    return settings;
 }
 
-- (void)saveNotificationDeviceToken:(NSData *)deviceToken {
+- (void)reportNotificationRegisteredWithSettings:(UIUserNotificationSettings *)notificationSettings {
+    if (self.completionBlock) {
+        self.completionBlock(YES, nil);
+        self.completionBlock = nil;
+    }
+}
+
+- (void)reportNotificationDeviceToken:(NSData *)deviceToken {
     NSString *deviceTokenString = [[[deviceToken description] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]] stringByReplacingOccurrencesOfString:@" " withString:@""];
     
     [[NSUserDefaults standardUserDefaults] setObject:deviceTokenString forKey:NotificationDeviceTokenKey];
     
     DebugLog(@"device token: %@", deviceTokenString);
-    
-    if (self.completionBlock) {
-        self.completionBlock(YES, nil);
-        self.completionBlock = nil;
-    }
 }
 
 - (void)reportNotificationRegistrationError:(NSError *)error {
@@ -108,6 +135,35 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
         self.completionBlock(NO, error);
         self.completionBlock = nil;
     }
+}
+
++ (void)presentPermissionGetwayInViewController:(UIViewController *)viewController
+                         forRequestedPermission:(PGRequestedPermission)requestedPermission
+                            withCompletionBlock:(void (^)())completionBlock {
+    PGPermissionStatus status = [[PGPermissionGateway sharedInstance] statusForRequestedPermission:requestedPermission];
+    if (status == PGPermissionStatusAllowed) {
+        // do nothing
+        return;
+    }
+    
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"PermissionGateway" bundle:[NSBundle bundleForClass:[self class]]];
+    NSAssert(storyboard != nil, @"Storyboard must be defined");
+    
+    UINavigationController *navController = [storyboard instantiateViewControllerWithIdentifier:@"PermissionNavigationController"];
+    NSAssert([navController.topViewController isKindOfClass:[PGPermissionGatewayViewController class]], @"Top VC must be a Permission Gateway VC");
+    PGPermissionGatewayViewController *permissionGatewayVC = (PGPermissionGatewayViewController *)navController.topViewController;
+    permissionGatewayVC.requestedPermission = requestedPermission;
+    permissionGatewayVC.completionBlock = ^(BOOL granted, NSError *error) {
+        DebugLog(@"Done");
+    };
+    
+    navController.modalTransitionStyle = UIModalTransitionStyleFlipHorizontal;
+
+    [viewController presentViewController:navController animated:YES completion:^{
+        if (completionBlock) {
+            completionBlock();
+        }
+    }];
 }
 
 #pragma mark - Private Methods
@@ -270,8 +326,15 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
 
 - (BOOL)isMicrophonePermissionAuthorized
 {
+#if TARGET_IPHONE_SIMULATOR
+#ifndef NDEBUG
+    NSLog(@"Simulator is not fully supported");
+#endif
+    return NO;
+#else
     AVAudioSessionRecordPermission permission = [[AVAudioSession sharedInstance] recordPermission];
     return permission == AVAudioSessionRecordPermissionGranted;
+#endif
 }
 
 - (BOOL)isNotificationPermissionAuthorized
@@ -323,6 +386,14 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
 
 - (void)requestMicrophoneAuthorizationWithCompletionBlock:(void (^)(BOOL authorized, NSError *error))completionBlock
 {
+#if TARGET_IPHONE_SIMULATOR
+#ifndef NDEBUG
+    NSLog(@"Simulator is not fully supported");
+#endif
+    if (completionBlock) {
+        completionBlock(NO, nil);
+    }
+#else
     if (!completionBlock) {
         NSParameterAssert(completionBlock != NULL);
         return;
@@ -332,6 +403,7 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     [audioSession requestRecordPermission:^(BOOL granted) {
         completionBlock(granted, nil);
     }];
+#endif
 }
 
 - (void)requestNotificationAuthorizationWithCompletionBlock:(void (^)(BOOL authorized, NSError *error))completionBlock
@@ -341,10 +413,20 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
         return;
     }
     
+#if TARGET_IPHONE_SIMULATOR
+#ifndef NDEBUG
+    NSLog(@"Simulator is not fully supported");
+#endif
+    if (completionBlock) {
+        BOOL granted = [[UIApplication sharedApplication] isRegisteredForRemoteNotifications];
+        completionBlock(granted, nil);
+    }
+#else
+    self.completionBlock = completionBlock;
+    
     UIUserNotificationSettings *settings = [self notificationSettings];
     [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
-    
-    self.completionBlock = completionBlock;
+#endif
 }
 
 - (void)requestContactsAuthorizationWithCompletionBlock:(void (^)(BOOL authorized, NSError *error))completionBlock
@@ -353,8 +435,6 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
         NSParameterAssert(completionBlock != NULL);
         return;
     }
-    
-    // TODO : implement
     
     ABAddressBookRef addressBook = ABAddressBookCreateWithOptions(NULL, NULL);
     ABAddressBookRequestAccessWithCompletion(addressBook, ^(bool granted, CFErrorRef error) {
@@ -385,21 +465,35 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     self.completionBlock = completionBlock;
     
     CLLocationManager *locationManager = [[CLLocationManager alloc] init];
+    locationManager.delegate = self;
+    
     if (useAlways) {
         [locationManager requestAlwaysAuthorization];
     }
     else if (useWhenInUse) {
         [locationManager requestWhenInUseAuthorization];
     }
+    
+    self.locationManager = locationManager;
 }
 
 #pragma mark - CLLocationManagerDelegate
 #pragma mark -
 
+- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
+    if (status != kCLAuthorizationStatusNotDetermined) {
+        BOOL granted = status == kCLAuthorizationStatusAuthorizedAlways || status == kCLAuthorizationStatusAuthorizedWhenInUse;
+        if (self.completionBlock) {
+            self.completionBlock(granted, nil);
+        }
+    }
+}
+
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
     if (self.completionBlock) {
         self.completionBlock(NO, error);
         self.completionBlock = nil;
+        self.locationManager = nil;
     }
 }
 
