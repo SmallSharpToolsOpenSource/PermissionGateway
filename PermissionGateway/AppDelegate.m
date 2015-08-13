@@ -9,7 +9,9 @@
 #import "AppDelegate.h"
 
 #import "Macros.h"
+
 #import "PGPermissionGateway.h"
+#import "PGPermissionGatewayViewController.h"
 
 @interface AppDelegate ()
 
@@ -19,6 +21,13 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    
+    PGPermissionStatus notificationPermissionStatus = [[PGPermissionGateway sharedInstance] statusForRequestedPermission:PGRequestedPermissionNotification];
+    if (notificationPermissionStatus == PGPermissionStatusAllowed) {
+        // refresh the device token
+        [application registerForRemoteNotifications];
+    }
+    
     
     if (EnvVarIsTrue(@"ForceFirstLaunch")) {
         DebugLog(@"Forcing first launch");

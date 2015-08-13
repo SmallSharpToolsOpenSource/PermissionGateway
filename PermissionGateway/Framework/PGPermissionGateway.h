@@ -9,8 +9,6 @@
 @import Foundation;
 @import UIKit;
 
-#import "Macros.h"
-
 // Requested Permission
 typedef NS_ENUM(NSUInteger, PGRequestedPermission) {
     PGRequestedPermissionNone = 0,
@@ -30,11 +28,11 @@ typedef NS_ENUM(NSUInteger, PGPermissionStatus) {
     PGPermissionStatusDenied = 3
 };
 
-// Prompt Status
-typedef NS_ENUM(NSUInteger, PGPromptStatus) {
-    PGPromptStatusNone = 0,
-    PGPromptStatusAccepted = 1,
-    PGPromptStatusDeclined = 2
+// Gateway Prompt Status
+typedef NS_ENUM(NSUInteger, PGGatewayPromptStatus) {
+    PGGatewayPromptStatusNone = 0,
+    PGGatewayPromptStatusAccepted = 1,
+    PGGatewayPromptStatusDeclined = 2
 };
 
 @interface PGPermissionGateway : NSObject
@@ -43,7 +41,12 @@ typedef NS_ENUM(NSUInteger, PGPromptStatus) {
 
 - (PGPermissionStatus)statusForRequestedPermission:(PGRequestedPermission)requestedPermission;
 
-- (void)requestPermission:(PGRequestedPermission)requestedPermission withCompletionBlock:(void (^)(BOOL authorized, NSError *error))completionBlock;
+- (void)requestPermission:(PGRequestedPermission)requestedPermission
+      withCompletionBlock:(void (^)(BOOL authorized, NSError *error))completionBlock;
+
+- (void)reportPermissionAllowedAtGateway:(PGRequestedPermission)requestedPermission;
+
+- (void)reportPermissionDeniedAtGateway:(PGRequestedPermission)requestedPermission;
 
 - (UIUserNotificationSettings *)notificationSettings;
 

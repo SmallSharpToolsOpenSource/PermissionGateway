@@ -20,6 +20,6 @@ typedef void(^PGViewControllerCompletionBlock)(BOOL granted, NSError *error);
 
 + (void)presentPermissionGetwayInViewController:(UIViewController *)viewController
                          forRequestedPermission:(PGRequestedPermission)requestedPermission
-                            withCompletionBlock:(void (^)())completionBlock;
+                            withCompletionBlock:(void (^)(BOOL granted, NSError *error))completionBlock;
 
 @end

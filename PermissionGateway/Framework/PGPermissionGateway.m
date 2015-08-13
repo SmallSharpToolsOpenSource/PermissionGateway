@@ -38,8 +38,7 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
 #pragma mark - Public Methods
 #pragma mark -
 
-+ (instancetype)sharedInstance
-{
++ (instancetype)sharedInstance {
     static PGPermissionGateway *_instance = nil;
     static dispatch_once_t onceToken;
     
@@ -50,25 +49,39 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     return _instance;
 }
 
-- (PGPermissionStatus)statusForRequestedPermission:(PGRequestedPermission)requestedPermission
-{
+- (PGPermissionStatus)statusForRequestedPermission:(PGRequestedPermission)requestedPermission {
+#if TARGET_IPHONE_SIMULATOR
+#ifndef NDEBUG
+    NSLog(@"Simulator is not fully supported");
+#endif
+    
+    // return allowed for iOS Simulator if the user allowed the gateway prompt
+    if (requestedPermission == PGRequestedPermissionNotification) {
+        PGGatewayPromptStatus promptStatus = [self promptStatusForPermission:requestedPermission];
+        
+        if (promptStatus == PGGatewayPromptStatusAccepted) {
+            return PGPermissionStatusAllowed;
+        }
+    }
+#endif
+    
     BOOL isSystemAuthorized = [self isSystemAuthorizedForPermission:requestedPermission];
     
     if (isSystemAuthorized) {
         return PGPermissionStatusAllowed;
     }
     
-    PGPromptStatus promptStatus = [self promptStatusForPermission:requestedPermission];
+    PGGatewayPromptStatus promptStatus = [self promptStatusForPermission:requestedPermission];
     
-    if (promptStatus == PGPromptStatusNone) {
+    if (promptStatus == PGGatewayPromptStatusNone) {
         // not prompted by app yet
         return PGPermissionStatusNone;
     }
-    else if (promptStatus == PGPromptStatusDeclined) {
+    else if (promptStatus == PGGatewayPromptStatusDeclined) {
         // app prompt was denied though system prompt may not have been presented
         return PGPermissionStatusGatewayDenied;
     }
-    else if (promptStatus == PGPromptStatusAccepted) {
+    else if (promptStatus == PGGatewayPromptStatusAccepted) {
         // fall back on system authorization
         return isSystemAuthorized ? PGPermissionStatusAllowed : PGPermissionStatusDenied;
     }
@@ -76,7 +89,8 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     return PGPermissionStatusNone;
 }
 
-- (void)requestPermission:(PGRequestedPermission)requestedPermission withCompletionBlock:(void (^)(BOOL authorized, NSError *error))completionBlock {
+- (void)requestPermission:(PGRequestedPermission)requestedPermission
+      withCompletionBlock:(void (^)(BOOL authorized, NSError *error))completionBlock {
     if (requestedPermission == PGRequestedPermissionPhoto) {
         [self requestPhotosAuthorizationWithCompletionBlock:completionBlock];
     }
@@ -97,14 +111,12 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     }
 }
 
-- (void)presentGatewayPromptForPermission:(PGRequestedPermission)requestedPermission viewController:(UIViewController *)viewController withCompletionBlock:(void (^)(PGPermissionStatus status, NSError *error))completionBlock {
-    if (!completionBlock) {
-        NSParameterAssert(completionBlock != NULL);
-        return;
-    }
-    
-    // 1) instantiate the modal scene
-    // 2) add the gateway as the delegate?
+- (void)reportPermissionAllowedAtGateway:(PGRequestedPermission)requestedPermission {
+    [self setPromptStatus:PGGatewayPromptStatusAccepted forRequestedPermission:requestedPermission];
+}
+
+- (void)reportPermissionDeniedAtGateway:(PGRequestedPermission)requestedPermission {
+    [self setPromptStatus:PGGatewayPromptStatusDeclined forRequestedPermission:requestedPermission];
 }
 
 - (UIUserNotificationSettings *)notificationSettings {
@@ -114,12 +126,7 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
 }
 
 - (void)reportNotificationRegisteredWithSettings:(UIUserNotificationSettings *)notificationSettings {
-    if (self.completionBlock) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            self.completionBlock(YES, nil);
-            self.completionBlock = nil;
-        });
-    }
+    // do nothing
 }
 
 - (void)reportNotificationDeviceToken:(NSData *)deviceToken {
@@ -127,7 +134,15 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     
     [[NSUserDefaults standardUserDefaults] setObject:deviceTokenString forKey:NotificationDeviceTokenKey];
     
-    DebugLog(@"device token: %@", deviceTokenString);
+#ifndef NDEBUG
+    NSLog(@"device token: %@", deviceTokenString);
+#endif
+    if (self.completionBlock) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.completionBlock(YES, nil);
+            self.completionBlock = nil;
+        });
+    }
 }
 
 - (void)reportNotificationRegistrationError:(NSError *)error {
@@ -142,8 +157,8 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
 #pragma mark - Private Methods
 #pragma mark -
 
-- (void)promptForRequestedPermission:(PGRequestedPermission)requestedPermission withCompletionBlock:(void (^)(PGPermissionStatus status, NSError *error))completionBlock
-{
+- (void)promptForRequestedPermission:(PGRequestedPermission)requestedPermission
+                 withCompletionBlock:(void (^)(PGPermissionStatus status, NSError *error))completionBlock {
     if (!completionBlock) {
         NSAssert(NO, @"Completion block is required.");
         return;
@@ -176,8 +191,7 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     }
 }
 
-- (NSString *)keyForPromptStatusForPermission:(PGRequestedPermission)requestedPermission
-{
+- (NSString *)keyForPromptStatusForPermission:(PGRequestedPermission)requestedPermission {
     NSString *key = @"";
     
     switch (requestedPermission) {
@@ -208,18 +222,17 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     return key;
 }
 
-- (PGPromptStatus)promptStatusForPermission:(PGRequestedPermission)requestedPermission
-{
-    PGPromptStatus status = PGPromptStatusNone;
+- (PGGatewayPromptStatus)promptStatusForPermission:(PGRequestedPermission)requestedPermission {
+    PGGatewayPromptStatus status = PGGatewayPromptStatusNone;
     
     NSString *key = [self keyForPromptStatusForPermission:requestedPermission];
     NSString *value = [[NSUserDefaults standardUserDefaults] stringForKey:key];
     
     if ([PromptStatusAccepted isEqualToString:value]) {
-        status = PGPromptStatusAccepted;
+        status = PGGatewayPromptStatusAccepted;
     }
     else if ([PromptStatusDeclined isEqualToString:value]) {
-        status = PGPromptStatusDeclined;
+        status = PGGatewayPromptStatusDeclined;
     }
     else {
         // leave as default
@@ -228,8 +241,7 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     return status;
 }
 
-- (BOOL)isSystemAuthorizedForPermission:(PGRequestedPermission)requestedPermission
-{
+- (BOOL)isSystemAuthorizedForPermission:(PGRequestedPermission)requestedPermission {
     BOOL isAuthorized = NO;
     
     switch (requestedPermission) {
@@ -260,16 +272,15 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     return isAuthorized;
 }
 
-- (void)setPromptStatus:(PGPromptStatus)promptStatus forRequestedPermission:(PGRequestedPermission)requestedPermission
-{
+- (void)setPromptStatus:(PGGatewayPromptStatus)promptStatus forRequestedPermission:(PGRequestedPermission)requestedPermission {
     NSString *key = [self keyForPromptStatusForPermission:requestedPermission];
     NSString *value = @"";
     
     switch (promptStatus) {
-        case PGPromptStatusAccepted:
+        case PGGatewayPromptStatusAccepted:
             value = PromptStatusAccepted;
             break;
-        case PGPromptStatusDeclined:
+        case PGGatewayPromptStatusDeclined:
             value = PromptStatusDeclined;
             break;
             
@@ -285,20 +296,17 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
 #pragma mark - System Permission Status
 #pragma mark -
 
-- (BOOL)isPhotoPermissionAuthorized
-{
+- (BOOL)isPhotoPermissionAuthorized {
     ALAuthorizationStatus status = [ALAssetsLibrary authorizationStatus];
     return status == ALAuthorizationStatusAuthorized;
 }
 
-- (BOOL)isCameraPermissionAuthorized
-{
+- (BOOL)isCameraPermissionAuthorized {
     AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
     return status == AVAuthorizationStatusAuthorized;
 }
 
-- (BOOL)isMicrophonePermissionAuthorized
-{
+- (BOOL)isMicrophonePermissionAuthorized {
 #if TARGET_IPHONE_SIMULATOR
 #ifndef NDEBUG
     NSLog(@"Simulator is not fully supported");
@@ -310,19 +318,17 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
 #endif
 }
 
-- (BOOL)isNotificationPermissionAuthorized
-{
-    return [[UIApplication sharedApplication] isRegisteredForRemoteNotifications];
+- (BOOL)isNotificationPermissionAuthorized {
+    BOOL isRegistered = [[UIApplication sharedApplication] isRegisteredForRemoteNotifications];
+    return isRegistered;
 }
 
-- (BOOL)isContactsPermissionAuthorized
-{
+- (BOOL)isContactsPermissionAuthorized {
     ABAuthorizationStatus status = ABAddressBookGetAuthorizationStatus();
     return status == kABAuthorizationStatusAuthorized;
 }
 
-- (BOOL)isLocationPermissionAuthorized
-{
+- (BOOL)isLocationPermissionAuthorized {
     CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
     return status == kCLAuthorizationStatusAuthorizedAlways || status == kCLAuthorizationStatusAuthorizedWhenInUse;
 }
@@ -330,8 +336,7 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
 #pragma mark - Requesting Authorization
 #pragma mark -
 
-- (void)requestPhotosAuthorizationWithCompletionBlock:(void (^)(BOOL authorized, NSError *error))completionBlock
-{
+- (void)requestPhotosAuthorizationWithCompletionBlock:(void (^)(BOOL authorized, NSError *error))completionBlock {
     if (!completionBlock) {
         NSParameterAssert(completionBlock != NULL);
         return;
@@ -349,8 +354,7 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     }];
 }
 
-- (void)requestCameraAuthorizationWithCompletionBlock:(void (^)(BOOL authorized, NSError *error))completionBlock
-{
+- (void)requestCameraAuthorizationWithCompletionBlock:(void (^)(BOOL authorized, NSError *error))completionBlock {
     if (!completionBlock) {
         NSParameterAssert(completionBlock != NULL);
         return;
@@ -363,8 +367,7 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     }];
 }
 
-- (void)requestMicrophoneAuthorizationWithCompletionBlock:(void (^)(BOOL authorized, NSError *error))completionBlock
-{
+- (void)requestMicrophoneAuthorizationWithCompletionBlock:(void (^)(BOOL authorized, NSError *error))completionBlock {
 #if TARGET_IPHONE_SIMULATOR
 #ifndef NDEBUG
     NSLog(@"Simulator is not fully supported");
@@ -390,8 +393,7 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
 #endif
 }
 
-- (void)requestNotificationAuthorizationWithCompletionBlock:(void (^)(BOOL authorized, NSError *error))completionBlock
-{
+- (void)requestNotificationAuthorizationWithCompletionBlock:(void (^)(BOOL authorized, NSError *error))completionBlock {
     if (!completionBlock) {
         NSParameterAssert(completionBlock != NULL);
         return;
@@ -401,10 +403,9 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
 #ifndef NDEBUG
     NSLog(@"Simulator is not fully supported");
 #endif
-    BOOL granted = [[UIApplication sharedApplication] isRegisteredForRemoteNotifications];
     if (completionBlock) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            completionBlock(granted, nil);
+            completionBlock(YES, nil);
         });
     }
 #else
@@ -412,11 +413,11 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     
     UIUserNotificationSettings *settings = [self notificationSettings];
     [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
+    [[UIApplication sharedApplication] registerForRemoteNotifications];
 #endif
 }
 
-- (void)requestContactsAuthorizationWithCompletionBlock:(void (^)(BOOL authorized, NSError *error))completionBlock
-{
+- (void)requestContactsAuthorizationWithCompletionBlock:(void (^)(BOOL authorized, NSError *error))completionBlock {
     if (!completionBlock) {
         NSParameterAssert(completionBlock != NULL);
         return;
@@ -442,8 +443,7 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     });
 }
 
-- (void)requestLocationAuthorizationWithCompletionBlock:(void (^)(BOOL authorized, NSError *error))completionBlock
-{
+- (void)requestLocationAuthorizationWithCompletionBlock:(void (^)(BOOL authorized, NSError *error))completionBlock {
     if (!completionBlock) {
         NSParameterAssert(completionBlock != NULL);
         return;
@@ -478,6 +478,7 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
         if (self.completionBlock) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 self.completionBlock(granted, nil);
+                self.locationManager = nil;
             });
         }
     }

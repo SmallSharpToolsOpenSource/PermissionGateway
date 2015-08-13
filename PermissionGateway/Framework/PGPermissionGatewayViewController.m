@@ -29,7 +29,7 @@
 
 + (void)presentPermissionGetwayInViewController:(UIViewController *)viewController
                          forRequestedPermission:(PGRequestedPermission)requestedPermission
-                            withCompletionBlock:(void (^)())completionBlock {
+                            withCompletionBlock:(void (^)(BOOL granted, NSError *error))completionBlock {
     PGPermissionStatus status = [[PGPermissionGateway sharedInstance] statusForRequestedPermission:requestedPermission];
     if (status == PGPermissionStatusAllowed) {
         // do nothing
@@ -43,16 +43,11 @@
     NSAssert([navController.topViewController isKindOfClass:[PGPermissionGatewayViewController class]], @"Top VC must be a Permission Gateway VC");
     PGPermissionGatewayViewController *permissionGatewayVC = (PGPermissionGatewayViewController *)navController.topViewController;
     permissionGatewayVC.requestedPermission = requestedPermission;
-    permissionGatewayVC.completionBlock = ^(BOOL granted, NSError *error) {
-        DebugLog(@"Done");
-    };
+    permissionGatewayVC.completionBlock = completionBlock;
     
     navController.modalTransitionStyle = UIModalTransitionStyleFlipHorizontal;
     
     [viewController presentViewController:navController animated:YES completion:^{
-        if (completionBlock) {
-            completionBlock();
-        }
     }];
 }
 
@@ -61,22 +56,11 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-//    /* Allow Permission */
-//    "Allow Permission" = "Allow";
-//    
-//    /* Deny Permission */
-//    "Deny Permission" = "Deny";
-//    
-//    /* Change Application Settings */
-//    "Change Application Settings" = "Change Application Settings";
 
-//    self.requestedPermission
     PGPermissionStatus status = [[PGPermissionGateway sharedInstance] statusForRequestedPermission:self.requestedPermission];
-    BOOL accessDenied = status == PGPermissionStatusDenied;
     
-    self.changeSettingsButton.hidden = accessDenied;
-    self.buttonsView.hidden = !accessDenied;
+    self.changeSettingsButton.hidden = status != PGPermissionStatusDenied;
+    self.buttonsView.hidden = status == PGPermissionStatusDenied;
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -123,44 +107,62 @@
 #pragma mark -
 
 - (IBAction)cancelButtonTapped:(id)sender {
-    [self dismiss];
+    [self dismissModal];
 }
 
 - (IBAction)changeSettingsButtonTapped:(id)sender {
     NSURL *appSettings = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
     [[UIApplication sharedApplication] openURL:appSettings];
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.25 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        [self dismissModal];
+    });
 }
 
 
 - (IBAction)allowButtonTapped:(id)sender {
     NSLog(@"Allow Tapped");
     
+    [[PGPermissionGateway sharedInstance] reportPermissionAllowedAtGateway:self.requestedPermission];
+    
     [[PGPermissionGateway sharedInstance] requestPermission:self.requestedPermission withCompletionBlock:^(BOOL authorized, NSError *error) {
-        DebugLog(@"authorized: %@", authorized ? @"YES" : @"NO");
+#ifndef NDEBUG
+        NSLog(@"authorized: %@", authorized ? @"YES" : @"NO");
         if (error) {
-            DebugLog(@"Error: %@", error);
+            NSLog(@"Error: %@", error);
         }
+#endif
         
-        [self dismiss];
+        [self dismissModal];
     }];
 }
 
 - (IBAction)denyButtonTapped:(id)sender {
     NSLog(@"Deny Tapped");
     
-    [self dismiss];
+    [[PGPermissionGateway sharedInstance] reportPermissionDeniedAtGateway:self.requestedPermission];
+    
+    [self dismissModal];
 }
 
 #pragma mark - Private
 #pragma mark -
 
-- (void)dismiss {
+- (void)dismissModal {
     NSAssert(self.navigationController != nil, @"NC must be defined");
     
     [self.navigationController dismissViewControllerAnimated:YES completion:^{
         NSLog(@"Dismissed Permission Gateway");
         
         //    TODO: indicate that the permission was granted or not
+        
+        NSAssert([NSThread isMainThread], @"Must be main thread");
+        if (self.completionBlock) {
+            PGPermissionStatus status = [[PGPermissionGateway sharedInstance] statusForRequestedPermission:self.requestedPermission];
+            BOOL granted = status == PGPermissionStatusAllowed;
+            
+            self.completionBlock(granted, nil);
+        }
     }];
 }
 

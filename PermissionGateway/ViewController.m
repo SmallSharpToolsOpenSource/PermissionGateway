@@ -63,7 +63,12 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
-    [self.tableView reloadData];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(applicationDidEnterBackgroundNotification:)
+                                                 name:UIApplicationDidEnterBackgroundNotification
+                                               object:nil];
+    
+    [self refreshTableView];
 }
 
 #pragma mark - Private
@@ -89,6 +94,12 @@
     }
     
     return color;
+}
+
+- (void)refreshTableView {
+    [self.tableView beginUpdates];
+    [self.tableView reloadRowsAtIndexPaths:self.tableView.indexPathsForVisibleRows withRowAnimation:UITableViewRowAnimationAutomatic];
+    [self.tableView endUpdates];
 }
 
 #pragma mark - UITableViewDataSource
@@ -122,12 +133,25 @@
 #pragma mark - UITableViewDelegate
 #pragma mark -
 
+- (NSIndexPath *)tableView:(UITableView *)tableView willSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSDictionary *permission = self.permissions[indexPath.row];
+    PGRequestedPermission requestedPermission = (PGRequestedPermission)[permission[@"permission"] unsignedIntegerValue];
+    PGPermissionStatus permissionStatus = [[PGPermissionGateway sharedInstance] statusForRequestedPermission:requestedPermission];
+
+    if (permissionStatus == PGPermissionStatusAllowed) {
+        return nil;
+    }
+    else {
+        return indexPath;
+    }
+}
+
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     NSDictionary *permission = self.permissions[indexPath.row];
     PGRequestedPermission requestedPermission = (PGRequestedPermission)[permission[@"permission"] unsignedIntegerValue];
     
-    [PGPermissionGatewayViewController presentPermissionGetwayInViewController:self forRequestedPermission:requestedPermission withCompletionBlock:^{
-        DebugLog(@"Presented Permission Gateway");
+    [PGPermissionGatewayViewController presentPermissionGetwayInViewController:self forRequestedPermission:requestedPermission withCompletionBlock:^(BOOL granted, NSError *error) {
+        // do nothing
     }];
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.25 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
@@ -137,6 +161,13 @@
 
 - (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath {
     return 50.0;
+}
+
+#pragma mark - Notifications
+#pragma mark -
+
+- (void)applicationDidEnterBackgroundNotification:(NSNotification *)notification {
+    [self refreshTableView];
 }
 
 @end
