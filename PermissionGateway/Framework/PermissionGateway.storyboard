@@ -17,6 +17,21 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Permission Body" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wO0-26-Wwg" userLabel="Permission Body Label">
+                                <rect key="frame" x="20" y="215" width="560" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="r3L-SJ-3B4" userLabel="Change Application Settings Button">
+                                <rect key="frame" x="203" y="256" width="195" height="30"/>
+                                <state key="normal" title="Change Application Settings">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="changeSettingsButtonTapped:" destination="GGc-zi-dF2" eventType="touchUpInside" id="iWa-iA-PhF"/>
+                                </connections>
+                            </button>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bgl-BJ-dBh" userLabel="Buttons View">
                                 <rect key="frame" x="250" y="534" width="100" height="46"/>
                                 <subviews>
@@ -50,18 +65,14 @@
                                     <constraint firstItem="iLV-Zl-gjt" firstAttribute="centerY" secondItem="F03-bz-I8x" secondAttribute="centerY" id="uqQ-Y0-iuH"/>
                                 </constraints>
                             </view>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Permission Body" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wO0-26-Wwg">
-                                <rect key="frame" x="20" y="215" width="560" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstAttribute="centerY" secondItem="wO0-26-Wwg" secondAttribute="centerY" multiplier="4:3" id="I1k-mv-Z8e"/>
                             <constraint firstItem="9HT-DW-aTI" firstAttribute="top" secondItem="bgl-BJ-dBh" secondAttribute="bottom" constant="20" id="W7W-AF-zhd"/>
                             <constraint firstAttribute="centerX" secondItem="bgl-BJ-dBh" secondAttribute="centerX" id="Xlv-Ka-9dA"/>
+                            <constraint firstItem="r3L-SJ-3B4" firstAttribute="top" secondItem="wO0-26-Wwg" secondAttribute="bottom" constant="20" id="dO9-9E-qka"/>
+                            <constraint firstItem="wO0-26-Wwg" firstAttribute="centerX" secondItem="r3L-SJ-3B4" secondAttribute="centerX" id="kDe-ew-JQP"/>
                             <constraint firstItem="wO0-26-Wwg" firstAttribute="leading" secondItem="PKa-nV-OgX" secondAttribute="leading" constant="20" id="qGa-pH-dty"/>
                             <constraint firstAttribute="centerX" secondItem="wO0-26-Wwg" secondAttribute="centerX" id="zDd-RM-Sj5"/>
                         </constraints>
@@ -74,6 +85,10 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="allowButton" destination="F03-bz-I8x" id="u7r-bC-j1l"/>
+                        <outlet property="buttonsView" destination="bgl-BJ-dBh" id="yhf-0p-gZJ"/>
+                        <outlet property="changeSettingsButton" destination="r3L-SJ-3B4" id="vtx-m2-Xj0"/>
+                        <outlet property="denyButton" destination="iLV-Zl-gjt" id="iuo-Al-P0o"/>
                         <outlet property="permissionBodyLabel" destination="wO0-26-Wwg" id="Akk-N7-6L1"/>
                     </connections>
                 </viewController>

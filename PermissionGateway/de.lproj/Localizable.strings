@@ -18,6 +18,15 @@
 /* Permission Denied */
 "Permission Denied" = "Denied";
 
+/* Allow Permission */
+"Allow Permission" = "Allow";
+
+/* Deny Permission */
+"Deny Permission" = "Deny";
+
+/* Change Application Settings */
+"Change Application Settings" = "Change Application Settings";
+
 /* Photo Permission Title */
 "Photo Permission Title" = "Photo";
 

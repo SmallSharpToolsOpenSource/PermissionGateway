@@ -9,6 +9,7 @@
 #import "ViewController.h"
 
 #import "PGPermissionGateway.h"
+#import "PGPermissionGatewayViewController.h"
 
 #define kTagTitleLabel 1
 #define kTagStatusView 2
@@ -125,7 +126,7 @@
     NSDictionary *permission = self.permissions[indexPath.row];
     PGRequestedPermission requestedPermission = (PGRequestedPermission)[permission[@"permission"] unsignedIntegerValue];
     
-    [PGPermissionGateway presentPermissionGetwayInViewController:self forRequestedPermission:requestedPermission withCompletionBlock:^{
+    [PGPermissionGatewayViewController presentPermissionGetwayInViewController:self forRequestedPermission:requestedPermission withCompletionBlock:^{
         DebugLog(@"Presented Permission Gateway");
     }];
     

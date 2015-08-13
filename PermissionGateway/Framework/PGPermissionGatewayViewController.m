@@ -15,12 +15,69 @@
 
 @property (weak, nonatomic) IBOutlet UILabel *permissionBodyLabel;
 
+@property (weak, nonatomic) IBOutlet UIButton *changeSettingsButton;
+@property (weak, nonatomic) IBOutlet UIView *buttonsView;
+@property (weak, nonatomic) IBOutlet UIButton *allowButton;
+@property (weak, nonatomic) IBOutlet UIButton *denyButton;
+
 @end
 
 @implementation PGPermissionGatewayViewController
 
+#pragma mark - Public
+#pragma mark -
+
++ (void)presentPermissionGetwayInViewController:(UIViewController *)viewController
+                         forRequestedPermission:(PGRequestedPermission)requestedPermission
+                            withCompletionBlock:(void (^)())completionBlock {
+    PGPermissionStatus status = [[PGPermissionGateway sharedInstance] statusForRequestedPermission:requestedPermission];
+    if (status == PGPermissionStatusAllowed) {
+        // do nothing
+        return;
+    }
+    
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"PermissionGateway" bundle:[NSBundle bundleForClass:[self class]]];
+    NSAssert(storyboard != nil, @"Storyboard must be defined");
+    
+    UINavigationController *navController = [storyboard instantiateViewControllerWithIdentifier:@"PermissionNavigationController"];
+    NSAssert([navController.topViewController isKindOfClass:[PGPermissionGatewayViewController class]], @"Top VC must be a Permission Gateway VC");
+    PGPermissionGatewayViewController *permissionGatewayVC = (PGPermissionGatewayViewController *)navController.topViewController;
+    permissionGatewayVC.requestedPermission = requestedPermission;
+    permissionGatewayVC.completionBlock = ^(BOOL granted, NSError *error) {
+        DebugLog(@"Done");
+    };
+    
+    navController.modalTransitionStyle = UIModalTransitionStyleFlipHorizontal;
+    
+    [viewController presentViewController:navController animated:YES completion:^{
+        if (completionBlock) {
+            completionBlock();
+        }
+    }];
+}
+
 #pragma mark - View Lifecycle
 #pragma mark -
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+//    /* Allow Permission */
+//    "Allow Permission" = "Allow";
+//    
+//    /* Deny Permission */
+//    "Deny Permission" = "Deny";
+//    
+//    /* Change Application Settings */
+//    "Change Application Settings" = "Change Application Settings";
+
+//    self.requestedPermission
+    PGPermissionStatus status = [[PGPermissionGateway sharedInstance] statusForRequestedPermission:self.requestedPermission];
+    BOOL accessDenied = status == PGPermissionStatusDenied;
+    
+    self.changeSettingsButton.hidden = accessDenied;
+    self.buttonsView.hidden = !accessDenied;
+}
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
@@ -68,6 +125,12 @@
 - (IBAction)cancelButtonTapped:(id)sender {
     [self dismiss];
 }
+
+- (IBAction)changeSettingsButtonTapped:(id)sender {
+    NSURL *appSettings = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+    [[UIApplication sharedApplication] openURL:appSettings];
+}
+
 
 - (IBAction)allowButtonTapped:(id)sender {
     NSLog(@"Allow Tapped");

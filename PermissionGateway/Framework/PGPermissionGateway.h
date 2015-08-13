@@ -45,10 +45,6 @@ typedef NS_ENUM(NSUInteger, PGPromptStatus) {
 
 - (void)requestPermission:(PGRequestedPermission)requestedPermission withCompletionBlock:(void (^)(BOOL authorized, NSError *error))completionBlock;
 
-+ (void)presentPermissionGetwayInViewController:(UIViewController *)viewController
-                         forRequestedPermission:(PGRequestedPermission)requestedPermission
-                            withCompletionBlock:(void (^)())completionBlock;
-
 - (UIUserNotificationSettings *)notificationSettings;
 
 - (void)reportNotificationRegisteredWithSettings:(UIUserNotificationSettings *)notificationSettings;

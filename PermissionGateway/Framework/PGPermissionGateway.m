@@ -8,8 +8,6 @@
 
 #import "PGPermissionGateway.h"
 
-#import "PGPermissionGatewayViewController.h"
-
 NSString * const PromptStatusPrefix = @"PromptStatus_";
 NSString * const PromptStatusAccepted = @"Accepted";
 NSString * const PromptStatusDeclined = @"Declined";
@@ -117,8 +115,10 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
 
 - (void)reportNotificationRegisteredWithSettings:(UIUserNotificationSettings *)notificationSettings {
     if (self.completionBlock) {
-        self.completionBlock(YES, nil);
-        self.completionBlock = nil;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.completionBlock(YES, nil);
+            self.completionBlock = nil;
+        });
     }
 }
 
@@ -132,38 +132,11 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
 
 - (void)reportNotificationRegistrationError:(NSError *)error {
     if (self.completionBlock) {
-        self.completionBlock(NO, error);
-        self.completionBlock = nil;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.completionBlock(NO, error);
+            self.completionBlock = nil;
+        });
     }
-}
-
-+ (void)presentPermissionGetwayInViewController:(UIViewController *)viewController
-                         forRequestedPermission:(PGRequestedPermission)requestedPermission
-                            withCompletionBlock:(void (^)())completionBlock {
-    PGPermissionStatus status = [[PGPermissionGateway sharedInstance] statusForRequestedPermission:requestedPermission];
-    if (status == PGPermissionStatusAllowed) {
-        // do nothing
-        return;
-    }
-    
-    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"PermissionGateway" bundle:[NSBundle bundleForClass:[self class]]];
-    NSAssert(storyboard != nil, @"Storyboard must be defined");
-    
-    UINavigationController *navController = [storyboard instantiateViewControllerWithIdentifier:@"PermissionNavigationController"];
-    NSAssert([navController.topViewController isKindOfClass:[PGPermissionGatewayViewController class]], @"Top VC must be a Permission Gateway VC");
-    PGPermissionGatewayViewController *permissionGatewayVC = (PGPermissionGatewayViewController *)navController.topViewController;
-    permissionGatewayVC.requestedPermission = requestedPermission;
-    permissionGatewayVC.completionBlock = ^(BOOL granted, NSError *error) {
-        DebugLog(@"Done");
-    };
-    
-    navController.modalTransitionStyle = UIModalTransitionStyleFlipHorizontal;
-
-    [viewController presentViewController:navController animated:YES completion:^{
-        if (completionBlock) {
-            completionBlock();
-        }
-    }];
 }
 
 #pragma mark - Private Methods
@@ -366,9 +339,13 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     
     ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
     [library enumerateGroupsWithTypes:ALAssetsGroupAll usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
-        completionBlock(YES, nil);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completionBlock(YES, nil);
+        });
     } failureBlock:^(NSError *error) {
-        completionBlock(NO, nil);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completionBlock(NO, error);
+        });
     }];
 }
 
@@ -380,7 +357,9 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     }
     
     [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
-        completionBlock(granted, nil);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completionBlock(granted, nil);
+        });
     }];
 }
 
@@ -391,7 +370,10 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     NSLog(@"Simulator is not fully supported");
 #endif
     if (completionBlock) {
-        completionBlock(NO, nil);
+        NSAssert([NSThread isMainThread], @"Must be main thread");
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completionBlock(NO, nil);
+        });
     }
 #else
     if (!completionBlock) {
@@ -401,7 +383,9 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     
     AVAudioSession *audioSession = [AVAudioSession sharedInstance];
     [audioSession requestRecordPermission:^(BOOL granted) {
-        completionBlock(granted, nil);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completionBlock(granted, nil);
+        });
     }];
 #endif
 }
@@ -417,9 +401,11 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
 #ifndef NDEBUG
     NSLog(@"Simulator is not fully supported");
 #endif
+    BOOL granted = [[UIApplication sharedApplication] isRegisteredForRemoteNotifications];
     if (completionBlock) {
-        BOOL granted = [[UIApplication sharedApplication] isRegisteredForRemoteNotifications];
-        completionBlock(granted, nil);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completionBlock(granted, nil);
+        });
     }
 #else
     self.completionBlock = completionBlock;
@@ -439,13 +425,19 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     ABAddressBookRef addressBook = ABAddressBookCreateWithOptions(NULL, NULL);
     ABAddressBookRequestAccessWithCompletion(addressBook, ^(bool granted, CFErrorRef error) {
         if (error) {
-            completionBlock(NO, (__bridge NSError *)error);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completionBlock(NO, (__bridge NSError *)error);
+            });
         }
         else if (granted) {
-            completionBlock(YES, nil);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completionBlock(YES, nil);
+            });
         }
         else {
-            completionBlock(NO, nil);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completionBlock(NO, nil);
+            });
         }
     });
 }
@@ -484,16 +476,20 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     if (status != kCLAuthorizationStatusNotDetermined) {
         BOOL granted = status == kCLAuthorizationStatusAuthorizedAlways || status == kCLAuthorizationStatusAuthorizedWhenInUse;
         if (self.completionBlock) {
-            self.completionBlock(granted, nil);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.completionBlock(granted, nil);
+            });
         }
     }
 }
 
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
     if (self.completionBlock) {
-        self.completionBlock(NO, error);
-        self.completionBlock = nil;
-        self.locationManager = nil;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.completionBlock(NO, error);
+            self.completionBlock = nil;
+            self.locationManager = nil;
+        });
     }
 }
 
