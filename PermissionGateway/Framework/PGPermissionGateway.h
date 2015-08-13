@@ -20,6 +20,13 @@ typedef NS_ENUM(NSUInteger, PGRequestedPermission) {
     PGRequestedPermissionLocation = 6
 };
 
+// System Permission Status
+typedef NS_ENUM(NSUInteger, PGSystemPermissionStatus) {
+    PGSystemPermissionStatusUndefined = 0,
+    PGSystemPermissionStatusAllowed = 1,
+    PGSystemPermissionStatusDenied = 2
+};
+
 // Permission Status
 typedef NS_ENUM(NSUInteger, PGPermissionStatus) {
     PGPermissionStatusNone = 0,
@@ -29,10 +36,10 @@ typedef NS_ENUM(NSUInteger, PGPermissionStatus) {
 };
 
 // Gateway Prompt Status
-typedef NS_ENUM(NSUInteger, PGGatewayPromptStatus) {
-    PGGatewayPromptStatusNone = 0,
-    PGGatewayPromptStatusAccepted = 1,
-    PGGatewayPromptStatusDeclined = 2
+typedef NS_ENUM(NSUInteger, PGGatewayStatus) {
+    PGGatewayStatusNone = 0,
+    PGGatewayStatusAccepted = 1,
+    PGGatewayStatusDeclined = 2
 };
 
 @interface PGPermissionGateway : NSObject

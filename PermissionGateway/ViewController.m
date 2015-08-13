@@ -33,31 +33,30 @@
     
     self.permissions = @[
                          @{
-                             @"title" : @"Photo Permission Title",
-                             @"body" : @"Photo Permission Body",
+                             @"title" : NSLocalizedString(@"Photo Permission Title", @""),
+                             @"body" : NSLocalizedString(@"Photo Permission Body", @""),
                              @"permission" : @(PGRequestedPermissionPhoto) },
                          @{
-                             @"title" : @"Camera Permission Title",
-                             @"body" : @"Camera Permission Body",
+                             @"title" : NSLocalizedString(@"Camera Permission Title", @""),
+                             @"body" : NSLocalizedString(@"Camera Permission Body", @""),
                              @"permission" : @(PGRequestedPermissionCamera) },
                          @{
-                             @"title" : @"Microphone Permission Title",
-                             @"body" : @"Microphone Permission Body",
+                             @"title" : NSLocalizedString(@"Microphone Permission Title", @""),
+                             @"body" : NSLocalizedString(@"Microphone Permission Body", @""),
                              @"permission" : @(PGRequestedPermissionMicrophone) },
                          @{
-                             @"title" : @"Notification Permission Title",
-                             @"body" : @"Notification Permission Body",
+                             @"title" : NSLocalizedString(@"Notification Permission Title", @""),
+                             @"body" : NSLocalizedString(@"Notification Permission Body", @""),
                              @"permission" : @(PGRequestedPermissionNotification) },
                          @{
-                             @"title" : @"Contacts Permission Title",
-                             @"body" : @"Contacts Permission Body",
+                             @"title" : NSLocalizedString(@"Contacts Permission Title", @""),
+                             @"body" : NSLocalizedString(@"Contacts Permission Body", @""),
                              @"permission" : @(PGRequestedPermissionContacts) },
                          @{
-                             @"title" : @"Location Permission Title",
-                             @"body" : @"Location Permission Body",
+                             @"title" : NSLocalizedString(@"Location Permission Title", @""),
+                             @"body" : NSLocalizedString(@"Location Permission Body", @""),
                              @"permission" : @(PGRequestedPermissionLocation) }
                        ];
-    
 }
 
 - (void)viewWillAppear:(BOOL)animated {

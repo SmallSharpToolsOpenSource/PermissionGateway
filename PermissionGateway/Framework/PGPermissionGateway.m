@@ -8,9 +8,9 @@
 
 #import "PGPermissionGateway.h"
 
-NSString * const PromptStatusPrefix = @"PromptStatus_";
-NSString * const PromptStatusAccepted = @"Accepted";
-NSString * const PromptStatusDeclined = @"Declined";
+NSString * const GatewayStatusPrefix = @"PromptStatus_";
+NSString * const GatewayStatusAccepted = @"Accepted";
+NSString * const GatewayStatusDeclined = @"Declined";
 
 NSString * const NotificationDeviceTokenKey = @"NotificationDeviceToken";
 
@@ -44,6 +44,19 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     
     dispatch_once(&onceToken, ^{
         _instance = [[PGPermissionGateway alloc] init];
+
+        for (NSUInteger permission = PGRequestedPermissionPhoto; permission <= PGRequestedPermissionLocation; permission++) {
+            PGRequestedPermission requestedPermission = (PGRequestedPermission)permission;
+            PGSystemPermissionStatus systemStatus = [_instance systemSystemStatusForPermission:requestedPermission];
+            if (systemStatus == PGSystemPermissionStatusUndefined) {
+                // if the system status is undefined then the gateway prompt status cannot be allowed
+                PGGatewayStatus promptStatus = [_instance gatewayStatusForPermission:requestedPermission];
+                if (promptStatus == PGGatewayStatusAccepted) {
+                    // reset it back to none
+                    [_instance setPromptStatus:PGGatewayStatusNone forRequestedPermission:requestedPermission];
+                }
+            }
+        }
     });
     
     return _instance;
@@ -57,33 +70,33 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     
     // return allowed for iOS Simulator if the user allowed the gateway prompt
     if (requestedPermission == PGRequestedPermissionNotification) {
-        PGGatewayPromptStatus promptStatus = [self promptStatusForPermission:requestedPermission];
+        PGGatewayStatus promptStatus = [self gatewayStatusForPermission:requestedPermission];
         
-        if (promptStatus == PGGatewayPromptStatusAccepted) {
+        if (promptStatus == PGGatewayStatusAccepted) {
             return PGPermissionStatusAllowed;
         }
     }
 #endif
     
-    BOOL isSystemAuthorized = [self isSystemAuthorizedForPermission:requestedPermission];
+    PGSystemPermissionStatus systemStatus = [self systemSystemStatusForPermission:requestedPermission];
     
-    if (isSystemAuthorized) {
+    if (systemStatus == PGSystemPermissionStatusAllowed) {
         return PGPermissionStatusAllowed;
     }
-    
-    PGGatewayPromptStatus promptStatus = [self promptStatusForPermission:requestedPermission];
-    
-    if (promptStatus == PGGatewayPromptStatusNone) {
-        // not prompted by app yet
-        return PGPermissionStatusNone;
+    else if (systemStatus == PGSystemPermissionStatusDenied) {
+        return PGPermissionStatusDenied;
     }
-    else if (promptStatus == PGGatewayPromptStatusDeclined) {
-        // app prompt was denied though system prompt may not have been presented
-        return PGPermissionStatusGatewayDenied;
-    }
-    else if (promptStatus == PGGatewayPromptStatusAccepted) {
-        // fall back on system authorization
-        return isSystemAuthorized ? PGPermissionStatusAllowed : PGPermissionStatusDenied;
+    else {
+        PGGatewayStatus promptStatus = [self gatewayStatusForPermission:requestedPermission];
+        
+        if (promptStatus == PGGatewayStatusNone) {
+            // not prompted by app yet
+            return PGPermissionStatusNone;
+        }
+        else if (promptStatus == PGGatewayStatusDeclined) {
+            // app prompt was denied though system prompt may not have been presented
+            return PGPermissionStatusGatewayDenied;
+        }
     }
     
     return PGPermissionStatusNone;
@@ -112,11 +125,11 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
 }
 
 - (void)reportPermissionAllowedAtGateway:(PGRequestedPermission)requestedPermission {
-    [self setPromptStatus:PGGatewayPromptStatusAccepted forRequestedPermission:requestedPermission];
+    [self setPromptStatus:PGGatewayStatusAccepted forRequestedPermission:requestedPermission];
 }
 
 - (void)reportPermissionDeniedAtGateway:(PGRequestedPermission)requestedPermission {
-    [self setPromptStatus:PGGatewayPromptStatusDeclined forRequestedPermission:requestedPermission];
+    [self setPromptStatus:PGGatewayStatusDeclined forRequestedPermission:requestedPermission];
 }
 
 - (UIUserNotificationSettings *)notificationSettings {
@@ -196,22 +209,22 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     
     switch (requestedPermission) {
         case PGRequestedPermissionPhoto:
-            key = [NSString stringWithFormat:@"%@%@", PromptStatusPrefix, @"Photo"];
+            key = [NSString stringWithFormat:@"%@%@", GatewayStatusPrefix, @"Photo"];
             break;
         case PGRequestedPermissionCamera:
-            key = [NSString stringWithFormat:@"%@%@", PromptStatusPrefix, @"Camera"];
+            key = [NSString stringWithFormat:@"%@%@", GatewayStatusPrefix, @"Camera"];
             break;
         case PGRequestedPermissionMicrophone:
-            key = [NSString stringWithFormat:@"%@%@", PromptStatusPrefix, @"Microphone"];
+            key = [NSString stringWithFormat:@"%@%@", GatewayStatusPrefix, @"Microphone"];
             break;
         case PGRequestedPermissionNotification:
-            key = [NSString stringWithFormat:@"%@%@", PromptStatusPrefix, @"Notification"];
+            key = [NSString stringWithFormat:@"%@%@", GatewayStatusPrefix, @"Notification"];
             break;
         case PGRequestedPermissionContacts:
-            key = [NSString stringWithFormat:@"%@%@", PromptStatusPrefix, @"Contacts"];
+            key = [NSString stringWithFormat:@"%@%@", GatewayStatusPrefix, @"Contacts"];
             break;
         case PGRequestedPermissionLocation:
-            key = [NSString stringWithFormat:@"%@%@", PromptStatusPrefix, @"Location"];
+            key = [NSString stringWithFormat:@"%@%@", GatewayStatusPrefix, @"Location"];
             break;
             
         default:
@@ -222,17 +235,17 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     return key;
 }
 
-- (PGGatewayPromptStatus)promptStatusForPermission:(PGRequestedPermission)requestedPermission {
-    PGGatewayPromptStatus status = PGGatewayPromptStatusNone;
+- (PGGatewayStatus)gatewayStatusForPermission:(PGRequestedPermission)requestedPermission {
+    PGGatewayStatus status = PGGatewayStatusNone;
     
     NSString *key = [self keyForPromptStatusForPermission:requestedPermission];
     NSString *value = [[NSUserDefaults standardUserDefaults] stringForKey:key];
     
-    if ([PromptStatusAccepted isEqualToString:value]) {
-        status = PGGatewayPromptStatusAccepted;
+    if ([GatewayStatusAccepted isEqualToString:value]) {
+        status = PGGatewayStatusAccepted;
     }
-    else if ([PromptStatusDeclined isEqualToString:value]) {
-        status = PGGatewayPromptStatusDeclined;
+    else if ([GatewayStatusDeclined isEqualToString:value]) {
+        status = PGGatewayStatusDeclined;
     }
     else {
         // leave as default
@@ -241,27 +254,27 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     return status;
 }
 
-- (BOOL)isSystemAuthorizedForPermission:(PGRequestedPermission)requestedPermission {
-    BOOL isAuthorized = NO;
+- (PGSystemPermissionStatus)systemSystemStatusForPermission:(PGRequestedPermission)requestedPermission {
+    PGSystemPermissionStatus systemStatus = PGSystemPermissionStatusUndefined;
     
     switch (requestedPermission) {
         case PGRequestedPermissionPhoto:
-            isAuthorized = [self isPhotoPermissionAuthorized];
+            systemStatus = [self systemStatusForPhotoPermission];
             break;
         case PGRequestedPermissionCamera:
-            isAuthorized = [self isCameraPermissionAuthorized];
+            systemStatus = [self systemStatusForCameraPermission];
             break;
         case PGRequestedPermissionMicrophone:
-            isAuthorized = [self isMicrophonePermissionAuthorized];
+            systemStatus = [self systemStatusForMicrophonePermission];
             break;
         case PGRequestedPermissionNotification:
-            isAuthorized = [self isNotificationPermissionAuthorized];
+            systemStatus = [self systemStatusForNotificationPermission];
             break;
         case PGRequestedPermissionContacts:
-            isAuthorized = [self isContactsPermissionAuthorized];
+            systemStatus = [self systemStatusForContactsPermission];
             break;
         case PGRequestedPermissionLocation:
-            isAuthorized = [self isLocationPermissionAuthorized];
+            systemStatus = [self systemStatusForLocationPermission];
             break;
             
         default:
@@ -269,19 +282,19 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
             break;
     }
     
-    return isAuthorized;
+    return systemStatus;
 }
 
-- (void)setPromptStatus:(PGGatewayPromptStatus)promptStatus forRequestedPermission:(PGRequestedPermission)requestedPermission {
+- (void)setPromptStatus:(PGGatewayStatus)promptStatus forRequestedPermission:(PGRequestedPermission)requestedPermission {
     NSString *key = [self keyForPromptStatusForPermission:requestedPermission];
     NSString *value = @"";
     
     switch (promptStatus) {
-        case PGGatewayPromptStatusAccepted:
-            value = PromptStatusAccepted;
+        case PGGatewayStatusAccepted:
+            value = GatewayStatusAccepted;
             break;
-        case PGGatewayPromptStatusDeclined:
-            value = PromptStatusDeclined;
+        case PGGatewayStatusDeclined:
+            value = GatewayStatusDeclined;
             break;
             
         default:
@@ -296,41 +309,98 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
 #pragma mark - System Permission Status
 #pragma mark -
 
-- (BOOL)isPhotoPermissionAuthorized {
+- (PGSystemPermissionStatus)systemStatusForPhotoPermission {
     ALAuthorizationStatus status = [ALAssetsLibrary authorizationStatus];
-    return status == ALAuthorizationStatusAuthorized;
+    
+    PGSystemPermissionStatus systemStatus = PGSystemPermissionStatusUndefined;
+    
+    if (status == ALAuthorizationStatusAuthorized) {
+        systemStatus = PGSystemPermissionStatusAllowed;
+    }
+    else if (status == ALAuthorizationStatusRestricted || status == ALAuthorizationStatusDenied) {
+        systemStatus = PGSystemPermissionStatusDenied;
+    }
+    
+    return systemStatus;
 }
 
-- (BOOL)isCameraPermissionAuthorized {
+- (PGSystemPermissionStatus)systemStatusForCameraPermission {
     AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
-    return status == AVAuthorizationStatusAuthorized;
+    
+    PGSystemPermissionStatus systemStatus = PGSystemPermissionStatusUndefined;
+    
+    if (status == AVAuthorizationStatusAuthorized) {
+        systemStatus = PGSystemPermissionStatusAllowed;
+    }
+    else if (status == AVAuthorizationStatusRestricted || status == AVAuthorizationStatusDenied) {
+        systemStatus = PGSystemPermissionStatusDenied;
+    }
+    
+    return systemStatus;
 }
 
-- (BOOL)isMicrophonePermissionAuthorized {
+- (PGSystemPermissionStatus)systemStatusForMicrophonePermission {
 #if TARGET_IPHONE_SIMULATOR
 #ifndef NDEBUG
     NSLog(@"Simulator is not fully supported");
 #endif
-    return NO;
+    return PGSystemPermissionStatusDenied;
 #else
     AVAudioSessionRecordPermission permission = [[AVAudioSession sharedInstance] recordPermission];
     return permission == AVAudioSessionRecordPermissionGranted;
+    
+    PGSystemPermissionStatus systemStatus = PGSystemPermissionStatusUndefined;
+    
+    if (status == AVAudioSessionRecordPermissionGranted) {
+        systemStatus = PGSystemPermissionStatusAllowed;
+    }
+    else if (status == AVAudioSessionRecordPermissionDenied) {
+        systemStatus = PGSystemPermissionStatusDenied;
+    }
+    
+    return systemStatus;
 #endif
 }
 
-- (BOOL)isNotificationPermissionAuthorized {
+- (PGSystemPermissionStatus)systemStatusForNotificationPermission {
     BOOL isRegistered = [[UIApplication sharedApplication] isRegisteredForRemoteNotifications];
-    return isRegistered;
+
+    // TODO: is there an undefined state?
+    
+    PGSystemPermissionStatus systemStatus = isRegistered ? PGSystemPermissionStatusAllowed : PGSystemPermissionStatusDenied;
+    
+    return systemStatus;
+    
 }
 
-- (BOOL)isContactsPermissionAuthorized {
+- (PGSystemPermissionStatus)systemStatusForContactsPermission {
     ABAuthorizationStatus status = ABAddressBookGetAuthorizationStatus();
-    return status == kABAuthorizationStatusAuthorized;
+    
+    PGSystemPermissionStatus systemStatus = PGSystemPermissionStatusUndefined;
+    
+    if (status == kABAuthorizationStatusAuthorized) {
+        systemStatus = PGSystemPermissionStatusAllowed;
+    }
+    else if (status == kABAuthorizationStatusRestricted || status == kABAuthorizationStatusDenied) {
+        systemStatus = PGSystemPermissionStatusDenied;
+    }
+    
+    return systemStatus;
 }
 
-- (BOOL)isLocationPermissionAuthorized {
+- (PGSystemPermissionStatus)systemStatusForLocationPermission {
     CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
-    return status == kCLAuthorizationStatusAuthorizedAlways || status == kCLAuthorizationStatusAuthorizedWhenInUse;
+    
+    PGSystemPermissionStatus systemStatus = PGSystemPermissionStatusUndefined;
+    
+    if (status == kCLAuthorizationStatusAuthorizedAlways || status == kCLAuthorizationStatusAuthorizedWhenInUse) {
+        systemStatus = PGSystemPermissionStatusAllowed;
+    }
+    else if (status == kCLAuthorizationStatusRestricted || status == kCLAuthorizationStatusDenied) {
+        systemStatus = PGSystemPermissionStatusDenied;
+    }
+    
+    return systemStatus;
 }
 
 #pragma mark - Requesting Authorization
