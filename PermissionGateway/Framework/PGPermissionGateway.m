@@ -45,6 +45,7 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     dispatch_once(&onceToken, ^{
         _instance = [[PGPermissionGateway alloc] init];
 
+        // if privacy settings on a device are reset the gateway status may need to be reset
         for (NSUInteger permission = PGRequestedPermissionPhoto; permission <= PGRequestedPermissionLocation; permission++) {
             PGRequestedPermission requestedPermission = (PGRequestedPermission)permission;
             PGSystemPermissionStatus systemStatus = [_instance systemSystemStatusForPermission:requestedPermission];
