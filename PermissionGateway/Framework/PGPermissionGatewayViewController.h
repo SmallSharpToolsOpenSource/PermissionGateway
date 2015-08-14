@@ -9,7 +9,7 @@
 @import Foundation;
 @import UIKit;
 
-#import "PGPermissionGateway.h"
+#import "PGPermissionGatewayManager.h"
 
 typedef void(^PGViewControllerCompletionBlock)(BOOL granted, NSError *error);
 

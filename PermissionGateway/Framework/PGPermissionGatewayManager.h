@@ -42,7 +42,7 @@ typedef NS_ENUM(NSUInteger, PGGatewayStatus) {
     PGGatewayStatusDeclined = 2
 };
 
-@interface PGPermissionGateway : NSObject
+@interface PGPermissionGatewayManager : NSObject
 
 + (instancetype)sharedInstance;
 

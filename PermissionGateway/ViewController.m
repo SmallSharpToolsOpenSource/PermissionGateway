@@ -8,8 +8,7 @@
 
 #import "ViewController.h"
 
-#import "PGPermissionGateway.h"
-#import "PGPermissionGatewayViewController.h"
+#import <PGPermissionGateway/PGPermissionGateway.h>
 
 #define kTagTitleLabel 1
 #define kTagStatusView 2
@@ -118,7 +117,7 @@
     UIView *statusView = [cell viewWithTag:kTagStatusView];
     
     PGRequestedPermission requestedPermission = (PGRequestedPermission)[permission[@"permission"] unsignedIntegerValue];
-    PGPermissionStatus permissionStatus = [[PGPermissionGateway sharedInstance] statusForRequestedPermission:requestedPermission];
+    PGPermissionStatus permissionStatus = [[PGPermissionGatewayManager sharedInstance] statusForRequestedPermission:requestedPermission];
     UIColor *statusColor = [self colorForPermissionStatus:permissionStatus];
     
     NSString *title = NSLocalizedString(permission[@"title"], @"Permission Title");
@@ -135,7 +134,7 @@
 - (NSIndexPath *)tableView:(UITableView *)tableView willSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     NSDictionary *permission = self.permissions[indexPath.row];
     PGRequestedPermission requestedPermission = (PGRequestedPermission)[permission[@"permission"] unsignedIntegerValue];
-    PGPermissionStatus permissionStatus = [[PGPermissionGateway sharedInstance] statusForRequestedPermission:requestedPermission];
+    PGPermissionStatus permissionStatus = [[PGPermissionGatewayManager sharedInstance] statusForRequestedPermission:requestedPermission];
 
     if (permissionStatus == PGPermissionStatusAllowed) {
         return nil;

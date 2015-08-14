@@ -20,10 +20,11 @@
 		26499D5C1B7BBBA600985D16 /* PermissionGateway.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 26499D311B7BBB7000985D16 /* PermissionGateway.storyboard */; };
 		266547A71B7B286B00476CA3 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 266547A91B7B286B00476CA3 /* Localizable.strings */; };
 		26A0EFBE1B7C6EDC003B376B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 260CA2A61B7920660038839F /* Main.storyboard */; };
+		26BC5C4F1B7D73C500E1D11A /* PGPermissionGateway.h in Headers */ = {isa = PBXBuildFile; fileRef = 26499D3C1B7BBB8C00985D16 /* PGPermissionGateway.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		26C3CB671B7C6BEF00ABD9BF /* PGPermissionGatewayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 260CA2C71B7939220038839F /* PGPermissionGatewayViewController.m */; };
-		26C3CB681B7C6BEF00ABD9BF /* PGPermissionGateway.m in Sources */ = {isa = PBXBuildFile; fileRef = 260CA2C41B7939010038839F /* PGPermissionGateway.m */; };
+		26C3CB681B7C6BEF00ABD9BF /* PGPermissionGatewayManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 260CA2C41B7939010038839F /* PGPermissionGatewayManager.m */; };
 		26C3CB6A1B7C6BFE00ABD9BF /* PGPermissionGatewayViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 260CA2C61B7939210038839F /* PGPermissionGatewayViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		26C3CB6B1B7C6BFE00ABD9BF /* PGPermissionGateway.h in Headers */ = {isa = PBXBuildFile; fileRef = 260CA2C31B7939010038839F /* PGPermissionGateway.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		26C3CB6B1B7C6BFE00ABD9BF /* PGPermissionGatewayManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 260CA2C31B7939010038839F /* PGPermissionGatewayManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -85,14 +86,14 @@
 		260CA2B21B7920660038839F /* PermissionGatewayTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PermissionGatewayTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		260CA2B71B7920660038839F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		260CA2B81B7920660038839F /* PermissionGatewayTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PermissionGatewayTests.m; sourceTree = "<group>"; };
-		260CA2C31B7939010038839F /* PGPermissionGateway.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PGPermissionGateway.h; path = Framework/PGPermissionGateway.h; sourceTree = "<group>"; };
-		260CA2C41B7939010038839F /* PGPermissionGateway.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PGPermissionGateway.m; path = Framework/PGPermissionGateway.m; sourceTree = "<group>"; };
-		260CA2C61B7939210038839F /* PGPermissionGatewayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PGPermissionGatewayViewController.h; path = Framework/PGPermissionGatewayViewController.h; sourceTree = "<group>"; };
-		260CA2C71B7939220038839F /* PGPermissionGatewayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PGPermissionGatewayViewController.m; path = Framework/PGPermissionGatewayViewController.m; sourceTree = "<group>"; };
+		260CA2C31B7939010038839F /* PGPermissionGatewayManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PGPermissionGatewayManager.h; path = ../PermissionGateway/Framework/PGPermissionGatewayManager.h; sourceTree = "<group>"; };
+		260CA2C41B7939010038839F /* PGPermissionGatewayManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PGPermissionGatewayManager.m; path = ../PermissionGateway/Framework/PGPermissionGatewayManager.m; sourceTree = "<group>"; };
+		260CA2C61B7939210038839F /* PGPermissionGatewayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PGPermissionGatewayViewController.h; path = ../PermissionGateway/Framework/PGPermissionGatewayViewController.h; sourceTree = "<group>"; };
+		260CA2C71B7939220038839F /* PGPermissionGatewayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PGPermissionGatewayViewController.m; path = ../PermissionGateway/Framework/PGPermissionGatewayViewController.m; sourceTree = "<group>"; };
 		26499D2A1B7B289A00985D16 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		26499D2B1B7B2C2000985D16 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		26499D301B7B2C6100985D16 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
-		26499D311B7BBB7000985D16 /* PermissionGateway.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = PermissionGateway.storyboard; path = Framework/PermissionGateway.storyboard; sourceTree = "<group>"; };
+		26499D311B7BBB7000985D16 /* PermissionGateway.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = PermissionGateway.storyboard; path = ../PermissionGateway/Framework/PermissionGateway.storyboard; sourceTree = "<group>"; };
 		26499D381B7BBB8C00985D16 /* PGPermissionGateway.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = PGPermissionGateway.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		26499D3B1B7BBB8C00985D16 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		26499D3C1B7BBB8C00985D16 /* PGPermissionGateway.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PGPermissionGateway.h; sourceTree = "<group>"; };
@@ -161,7 +162,6 @@
 		260CA29B1B7920660038839F /* PermissionGateway */ = {
 			isa = PBXGroup;
 			children = (
-				26499D5E1B7BBEEF00985D16 /* Framework */,
 				266547A41B7A6B5100476CA3 /* Macros.h */,
 				260CA2A01B7920660038839F /* AppDelegate.h */,
 				260CA2A11B7920660038839F /* AppDelegate.m */,
@@ -206,6 +206,11 @@
 			isa = PBXGroup;
 			children = (
 				26499D3C1B7BBB8C00985D16 /* PGPermissionGateway.h */,
+				260CA2C31B7939010038839F /* PGPermissionGatewayManager.h */,
+				260CA2C41B7939010038839F /* PGPermissionGatewayManager.m */,
+				260CA2C61B7939210038839F /* PGPermissionGatewayViewController.h */,
+				260CA2C71B7939220038839F /* PGPermissionGatewayViewController.m */,
+				26499D311B7BBB7000985D16 /* PermissionGateway.storyboard */,
 				26499D3A1B7BBB8C00985D16 /* Supporting Files */,
 			);
 			path = PGPermissionGateway;
@@ -236,18 +241,6 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		26499D5E1B7BBEEF00985D16 /* Framework */ = {
-			isa = PBXGroup;
-			children = (
-				260CA2C31B7939010038839F /* PGPermissionGateway.h */,
-				260CA2C41B7939010038839F /* PGPermissionGateway.m */,
-				260CA2C61B7939210038839F /* PGPermissionGatewayViewController.h */,
-				260CA2C71B7939220038839F /* PGPermissionGatewayViewController.m */,
-				26499D311B7BBB7000985D16 /* PermissionGateway.storyboard */,
-			);
-			name = Framework;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -255,8 +248,9 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				26C3CB6B1B7C6BFE00ABD9BF /* PGPermissionGateway.h in Headers */,
+				26C3CB6B1B7C6BFE00ABD9BF /* PGPermissionGatewayManager.h in Headers */,
 				26C3CB6A1B7C6BFE00ABD9BF /* PGPermissionGatewayViewController.h in Headers */,
+				26BC5C4F1B7D73C500E1D11A /* PGPermissionGateway.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -450,7 +444,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				26C3CB681B7C6BEF00ABD9BF /* PGPermissionGateway.m in Sources */,
+				26C3CB681B7C6BEF00ABD9BF /* PGPermissionGatewayManager.m in Sources */,
 				26C3CB671B7C6BEF00ABD9BF /* PGPermissionGatewayViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

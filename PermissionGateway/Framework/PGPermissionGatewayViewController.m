@@ -30,7 +30,7 @@
 + (void)presentPermissionGetwayInViewController:(UIViewController *)viewController
                          forRequestedPermission:(PGRequestedPermission)requestedPermission
                             withCompletionBlock:(void (^)(BOOL granted, NSError *error))completionBlock {
-    PGPermissionStatus status = [[PGPermissionGateway sharedInstance] statusForRequestedPermission:requestedPermission];
+    PGPermissionStatus status = [[PGPermissionGatewayManager sharedInstance] statusForRequestedPermission:requestedPermission];
     if (status == PGPermissionStatusAllowed) {
         // do nothing
         return;
@@ -57,7 +57,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    PGPermissionStatus status = [[PGPermissionGateway sharedInstance] statusForRequestedPermission:self.requestedPermission];
+    PGPermissionStatus status = [[PGPermissionGatewayManager sharedInstance] statusForRequestedPermission:self.requestedPermission];
     
     self.changeSettingsButton.hidden = status != PGPermissionStatusDenied;
     self.buttonsView.hidden = status == PGPermissionStatusDenied;
@@ -123,9 +123,9 @@
 - (IBAction)allowButtonTapped:(id)sender {
     NSLog(@"Allow Tapped");
     
-    [[PGPermissionGateway sharedInstance] reportPermissionAllowedAtGateway:self.requestedPermission];
+    [[PGPermissionGatewayManager sharedInstance] reportPermissionAllowedAtGateway:self.requestedPermission];
     
-    [[PGPermissionGateway sharedInstance] requestPermission:self.requestedPermission withCompletionBlock:^(BOOL authorized, NSError *error) {
+    [[PGPermissionGatewayManager sharedInstance] requestPermission:self.requestedPermission withCompletionBlock:^(BOOL authorized, NSError *error) {
 #ifndef NDEBUG
         NSLog(@"authorized: %@", authorized ? @"YES" : @"NO");
         if (error) {
@@ -140,7 +140,7 @@
 - (IBAction)denyButtonTapped:(id)sender {
     NSLog(@"Deny Tapped");
     
-    [[PGPermissionGateway sharedInstance] reportPermissionDeniedAtGateway:self.requestedPermission];
+    [[PGPermissionGatewayManager sharedInstance] reportPermissionDeniedAtGateway:self.requestedPermission];
     
     [self dismissModal];
 }
@@ -158,7 +158,7 @@
         
         NSAssert([NSThread isMainThread], @"Must be main thread");
         if (self.completionBlock) {
-            PGPermissionStatus status = [[PGPermissionGateway sharedInstance] statusForRequestedPermission:self.requestedPermission];
+            PGPermissionStatus status = [[PGPermissionGatewayManager sharedInstance] statusForRequestedPermission:self.requestedPermission];
             BOOL granted = status == PGPermissionStatusAllowed;
             
             self.completionBlock(granted, nil);

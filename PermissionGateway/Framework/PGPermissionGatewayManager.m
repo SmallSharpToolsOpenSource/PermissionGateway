@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Brennan Stehling. All rights reserved.
 //
 
-#import "PGPermissionGateway.h"
+#import "PGPermissionGatewayManager.h"
 
 NSString * const GatewayStatusPrefix = @"PromptStatus_";
 NSString * const GatewayStatusAccepted = @"Accepted";
@@ -25,7 +25,7 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
 #pragma mark - Class Extension
 #pragma mark -
 
-@interface PGPermissionGateway () <CLLocationManagerDelegate>
+@interface PGPermissionGatewayManager () <CLLocationManagerDelegate>
 
 @property (nonatomic, copy) PGCompletionBlock completionBlock;
 
@@ -33,17 +33,17 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
 
 @end
 
-@implementation PGPermissionGateway
+@implementation PGPermissionGatewayManager
 
 #pragma mark - Public Methods
 #pragma mark -
 
 + (instancetype)sharedInstance {
-    static PGPermissionGateway *_instance = nil;
+    static PGPermissionGatewayManager *_instance = nil;
     static dispatch_once_t onceToken;
     
     dispatch_once(&onceToken, ^{
-        _instance = [[PGPermissionGateway alloc] init];
+        _instance = [[PGPermissionGatewayManager alloc] init];
 
         // if privacy settings on a device are reset the gateway status may need to be reset
         for (NSUInteger permission = PGRequestedPermissionPhoto; permission <= PGRequestedPermissionLocation; permission++) {

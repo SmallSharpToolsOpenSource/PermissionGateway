@@ -10,8 +10,7 @@
 
 #import "Macros.h"
 
-#import "PGPermissionGateway.h"
-#import "PGPermissionGatewayViewController.h"
+#import <PGPermissionGateway/PGPermissionGateway.h>
 
 @implementation AppDelegate
 
@@ -21,7 +20,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     
-    PGPermissionStatus notificationPermissionStatus = [[PGPermissionGateway sharedInstance] statusForRequestedPermission:PGRequestedPermissionNotification];
+    PGPermissionStatus notificationPermissionStatus = [[PGPermissionGatewayManager sharedInstance] statusForRequestedPermission:PGRequestedPermissionNotification];
     if (notificationPermissionStatus == PGPermissionStatusAllowed) {
         // refresh the device token
         [application registerForRemoteNotifications];
@@ -34,15 +33,15 @@
 #pragma mark -
 
 - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings {
-    [[PGPermissionGateway sharedInstance] reportNotificationRegisteredWithSettings:notificationSettings];
+    [[PGPermissionGatewayManager sharedInstance] reportNotificationRegisteredWithSettings:notificationSettings];
 }
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-    [[PGPermissionGateway sharedInstance] reportNotificationDeviceToken:deviceToken];
+    [[PGPermissionGatewayManager sharedInstance] reportNotificationDeviceToken:deviceToken];
 }
 
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
-    [[PGPermissionGateway sharedInstance] reportNotificationRegistrationError:error];
+    [[PGPermissionGatewayManager sharedInstance] reportNotificationRegistrationError:error];
 }
 
 @end
