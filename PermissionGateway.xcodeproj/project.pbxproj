@@ -86,14 +86,14 @@
 		260CA2B21B7920660038839F /* PermissionGatewayTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PermissionGatewayTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		260CA2B71B7920660038839F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		260CA2B81B7920660038839F /* PermissionGatewayTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PermissionGatewayTests.m; sourceTree = "<group>"; };
-		260CA2C31B7939010038839F /* PGPermissionGatewayManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PGPermissionGatewayManager.h; path = ../PermissionGateway/Framework/PGPermissionGatewayManager.h; sourceTree = "<group>"; };
-		260CA2C41B7939010038839F /* PGPermissionGatewayManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PGPermissionGatewayManager.m; path = ../PermissionGateway/Framework/PGPermissionGatewayManager.m; sourceTree = "<group>"; };
-		260CA2C61B7939210038839F /* PGPermissionGatewayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PGPermissionGatewayViewController.h; path = ../PermissionGateway/Framework/PGPermissionGatewayViewController.h; sourceTree = "<group>"; };
-		260CA2C71B7939220038839F /* PGPermissionGatewayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PGPermissionGatewayViewController.m; path = ../PermissionGateway/Framework/PGPermissionGatewayViewController.m; sourceTree = "<group>"; };
+		260CA2C31B7939010038839F /* PGPermissionGatewayManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PGPermissionGatewayManager.h; path = ../PGPermissionGateway/PGPermissionGatewayManager.h; sourceTree = "<group>"; };
+		260CA2C41B7939010038839F /* PGPermissionGatewayManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PGPermissionGatewayManager.m; path = ../PGPermissionGateway/PGPermissionGatewayManager.m; sourceTree = "<group>"; };
+		260CA2C61B7939210038839F /* PGPermissionGatewayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PGPermissionGatewayViewController.h; path = ../PGPermissionGateway/PGPermissionGatewayViewController.h; sourceTree = "<group>"; };
+		260CA2C71B7939220038839F /* PGPermissionGatewayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PGPermissionGatewayViewController.m; path = ../PGPermissionGateway/PGPermissionGatewayViewController.m; sourceTree = "<group>"; };
 		26499D2A1B7B289A00985D16 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		26499D2B1B7B2C2000985D16 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		26499D301B7B2C6100985D16 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
-		26499D311B7BBB7000985D16 /* PermissionGateway.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = PermissionGateway.storyboard; path = ../PermissionGateway/Framework/PermissionGateway.storyboard; sourceTree = "<group>"; };
+		26499D311B7BBB7000985D16 /* PermissionGateway.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = PermissionGateway.storyboard; path = ../PGPermissionGateway/PermissionGateway.storyboard; sourceTree = "<group>"; };
 		26499D381B7BBB8C00985D16 /* PGPermissionGateway.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = PGPermissionGateway.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		26499D3B1B7BBB8C00985D16 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		26499D3C1B7BBB8C00985D16 /* PGPermissionGateway.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PGPermissionGateway.h; sourceTree = "<group>"; };
@@ -666,6 +666,7 @@
 				);
 				INFOPLIST_FILE = PGPermissionGateway/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -684,6 +685,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = PGPermissionGateway/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
