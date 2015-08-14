@@ -13,10 +13,6 @@
 #import "PGPermissionGateway.h"
 #import "PGPermissionGatewayViewController.h"
 
-@interface AppDelegate ()
-
-@end
-
 @implementation AppDelegate
 
 #pragma mark - Application Lifecycle

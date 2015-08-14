@@ -348,14 +348,13 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     return PGSystemPermissionStatusDenied;
 #else
     AVAudioSessionRecordPermission permission = [[AVAudioSession sharedInstance] recordPermission];
-    return permission == AVAudioSessionRecordPermissionGranted;
     
     PGSystemPermissionStatus systemStatus = PGSystemPermissionStatusUndefined;
     
-    if (status == AVAudioSessionRecordPermissionGranted) {
+    if (permission == AVAudioSessionRecordPermissionGranted) {
         systemStatus = PGSystemPermissionStatusAllowed;
     }
-    else if (status == AVAudioSessionRecordPermissionDenied) {
+    else if (permission == AVAudioSessionRecordPermissionDenied) {
         systemStatus = PGSystemPermissionStatusDenied;
     }
     
