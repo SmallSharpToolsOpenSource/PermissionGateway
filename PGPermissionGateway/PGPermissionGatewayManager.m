@@ -365,7 +365,7 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
 - (PGSystemPermissionStatus)systemStatusForNotificationPermission {
     BOOL isRegistered = [[UIApplication sharedApplication] isRegisteredForRemoteNotifications];
 
-    // TODO: is there an undefined state?
+    // Is there an undefined state?
     
     PGSystemPermissionStatus systemStatus = isRegistered ? PGSystemPermissionStatusAllowed : PGSystemPermissionStatusDenied;
     
