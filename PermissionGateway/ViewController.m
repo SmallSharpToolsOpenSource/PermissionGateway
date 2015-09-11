@@ -120,7 +120,7 @@
     PGPermissionStatus permissionStatus = [[PGPermissionGatewayManager sharedInstance] statusForRequestedPermission:requestedPermission];
     UIColor *statusColor = [self colorForPermissionStatus:permissionStatus];
     
-    NSString *title = NSLocalizedString(permission[@"title"], @"Permission Title");
+    NSString *title = permission[@"title"];
     
     titleLabel.text = title;
     statusView.backgroundColor = statusColor;
