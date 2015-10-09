@@ -19,6 +19,8 @@ NSString * const NotificationDeviceTokenKey = @"NotificationDeviceToken";
 @import AVFoundation;
 @import CoreLocation;
 @import UIKit;
+@import Photos;
+@import Contacts;
 
 typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
 
@@ -44,7 +46,7 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
     
     dispatch_once(&onceToken, ^{
         _instance = [[PGPermissionGatewayManager alloc] init];
-
+        
         // if privacy settings on a device are reset the gateway status may need to be reset
         for (NSUInteger permission = PGRequestedPermissionPhoto; permission <= PGRequestedPermissionLocation; permission++) {
             PGRequestedPermission requestedPermission = (PGRequestedPermission)permission;
@@ -65,17 +67,15 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
 
 - (PGPermissionStatus)statusForRequestedPermission:(PGRequestedPermission)requestedPermission {
 #if TARGET_IPHONE_SIMULATOR
-#ifndef NDEBUG
-    NSLog(@"Simulator is not fully supported");
-#endif
     
     // return allowed for iOS Simulator if the user allowed the gateway prompt
     if (requestedPermission == PGRequestedPermissionNotification) {
-        PGGatewayStatus promptStatus = [self gatewayStatusForPermission:requestedPermission];
-        
-        if (promptStatus == PGGatewayStatusAccepted) {
-            return PGPermissionStatusAllowed;
-        }
+#ifndef NDEBUG
+        NSLog(@"Simulator is not fully supported");
+#endif
+        // always return allows for notification permission status
+        // since the iOS Simulator does not support notifications
+        return PGPermissionStatusAllowed;
     }
 #endif
     
@@ -311,14 +311,14 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
 #pragma mark -
 
 - (PGSystemPermissionStatus)systemStatusForPhotoPermission {
-    ALAuthorizationStatus status = [ALAssetsLibrary authorizationStatus];
+    PHAuthorizationStatus status = [PHPhotoLibrary authorizationStatus];
     
     PGSystemPermissionStatus systemStatus = PGSystemPermissionStatusUndefined;
     
-    if (status == ALAuthorizationStatusAuthorized) {
+    if (status == PHAuthorizationStatusAuthorized) {
         systemStatus = PGSystemPermissionStatusAllowed;
     }
-    else if (status == ALAuthorizationStatusRestricted || status == ALAuthorizationStatusDenied) {
+    else if (status == PHAuthorizationStatusRestricted || status == PHAuthorizationStatusDenied) {
         systemStatus = PGSystemPermissionStatusDenied;
     }
     
@@ -364,24 +364,32 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
 
 - (PGSystemPermissionStatus)systemStatusForNotificationPermission {
     BOOL isRegistered = [[UIApplication sharedApplication] isRegisteredForRemoteNotifications];
-
-    // Is there an undefined state?
     
-    PGSystemPermissionStatus systemStatus = isRegistered ? PGSystemPermissionStatusAllowed : PGSystemPermissionStatusDenied;
-    
-    return systemStatus;
-    
-}
-
-- (PGSystemPermissionStatus)systemStatusForContactsPermission {
-    ABAuthorizationStatus status = ABAddressBookGetAuthorizationStatus();
+#ifdef DEBUG
+    NSLog(@"Is registered for notifications: %@", @(isRegistered));
+    NSString *deviceToken = [[NSUserDefaults standardUserDefaults] objectForKey:NotificationDeviceTokenKey];
+    NSLog(@"Device Token: %@", deviceToken);
+#endif
     
     PGSystemPermissionStatus systemStatus = PGSystemPermissionStatusUndefined;
     
-    if (status == kABAuthorizationStatusAuthorized) {
+    UIUserNotificationSettings *settings = [[UIApplication sharedApplication] currentUserNotificationSettings];
+    if (settings.types != UIUserNotificationTypeNone) {
+        systemStatus = isRegistered ? PGSystemPermissionStatusAllowed : PGSystemPermissionStatusDenied;
+    }
+    
+    return systemStatus;
+}
+
+- (PGSystemPermissionStatus)systemStatusForContactsPermission {
+    CNAuthorizationStatus status = [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts];
+    
+    PGSystemPermissionStatus systemStatus = PGSystemPermissionStatusUndefined;
+    
+    if (status == CNAuthorizationStatusAuthorized) {
         systemStatus = PGSystemPermissionStatusAllowed;
     }
-    else if (status == kABAuthorizationStatusRestricted || status == kABAuthorizationStatusDenied) {
+    else if (status == CNAuthorizationStatusRestricted || status == CNAuthorizationStatusDenied) {
         systemStatus = PGSystemPermissionStatusDenied;
     }
     
@@ -412,14 +420,11 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
         return;
     }
     
-    ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
-    [library enumerateGroupsWithTypes:ALAssetsGroupAll usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
+    [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+        BOOL granted = status == PHAuthorizationStatusAuthorized;
+        
         dispatch_async(dispatch_get_main_queue(), ^{
-            completionBlock(YES, nil);
-        });
-    } failureBlock:^(NSError *error) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            completionBlock(NO, error);
+            completionBlock(granted, nil);
         });
     }];
 }
@@ -493,24 +498,14 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
         return;
     }
     
-    ABAddressBookRef addressBook = ABAddressBookCreateWithOptions(NULL, NULL);
-    ABAddressBookRequestAccessWithCompletion(addressBook, ^(bool granted, CFErrorRef error) {
-        if (error) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                completionBlock(NO, (__bridge NSError *)error);
-            });
-        }
-        else if (granted) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                completionBlock(YES, nil);
-            });
-        }
-        else {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                completionBlock(NO, nil);
-            });
-        }
-    });
+    CNContactStore *contactStore = [[CNContactStore alloc] init];
+    
+    [contactStore requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError * _Nullable error) {
+        // Note: The completion block is not on the main queue
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completionBlock(granted, error);
+        });
+    }];
 }
 
 - (void)requestLocationAuthorizationWithCompletionBlock:(void (^)(BOOL authorized, NSError *error))completionBlock {
