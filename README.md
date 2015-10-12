@@ -38,12 +38,6 @@ app, such as denied permissions.
 
  * [iOS: Taking the user to settings](http://natashatherobot.com/ios-taking-the-user-to-settings/)
 
-### Possible Bug
-
-Currently denied permissions will result in sending users to the Settings app to change the
-required permission. When they return to the app which is still active the status is not
-changing. Somehow the system needs to be refreshed so the status changes.
-
 ### Requires iOS 8
 
 Due to various updates to the permissions model this library currently requires iOS 8 and

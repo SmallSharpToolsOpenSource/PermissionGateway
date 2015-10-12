@@ -69,6 +69,14 @@
     [self refreshTableView];
 }
 
+#pragma mark - User Actions
+#pragma mark -
+
+- (IBAction)settingsButtonTapped:(id)sender {
+    NSURL *appSettings = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+    [[UIApplication sharedApplication] openURL:appSettings];
+}
+
 #pragma mark - Private
 #pragma mark -
 
