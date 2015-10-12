@@ -29,6 +29,21 @@ experience read the article below.
 
  * [The Right Way To Ask Users For iOS Permissions](http://techcrunch.com/2014/04/04/the-right-way-to-ask-users-for-ios-permissions/) (TechCrunch) 
 
+### User Settings
+
+As Natasha The Robot points out on her blog it is possible to send the user to their settings
+for the app with simple technique which allows for deep linking into Settings which makes it
+much easier to help a user get into the settings for the app which cannot be changed in the
+app, such as denied permissions.
+
+ * [iOS: Taking the user to settings](http://natashatherobot.com/ios-taking-the-user-to-settings/)
+
+### Possible Bug
+
+Currently denied permissions will result in sending users to the Settings app to change the
+required permission. When they return to the app which is still active the status is not
+changing. Somehow the system needs to be refreshed so the status changes.
+
 ### Requires iOS 8
 
 Due to various updates to the permissions model this library currently requires iOS 8 and
