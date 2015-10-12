@@ -6,9 +6,23 @@ Prompts users with a gateway prior to displaying a system permission prompt.
 
 The problem with permissions on iOS is that there are many ways your app which may be used and
 requesting these permissions all at once results in a blitzkrieg of system prompts without
-any context of why the app will use each permissions. Users do not typically grant these
+any context of how the app will use each permission. Users do not typically grant these
 permissions without understanding why they are needed. According to the article linked below
 it is as low as 40%.
+
+Why is this a problem? When 60% of your users are unable to use critical features because they
+deny permissions which enable those features they are very likely to post **negative reviews**
+and **delete your app**. It results in a low star rating which will prevent strong *user growth*.
+Helping the users understand why your app needs to request permissions and also giving them a 
+path forward if they do deny a permission by sending them to the Settings app in the context
+of your app will prevent dead ends.
+
+With a permission gateway your app can prompt the user for a required permission in the
+context of the action they just initiated. If they just tapped the "Upload a photo" button and
+the gateway comes up to explain that the app needs permission to access their photo album
+the user understands it in context. They can cancel without any penalty or even trigger the
+system prompt and deny the permission if they choose. Later if they want to use that feature
+the gateway will give them the option to open Settings to allow that permission.
 
 For a more detailed explanation of the problem and suggestions for an improved user
 experience read the article below.
