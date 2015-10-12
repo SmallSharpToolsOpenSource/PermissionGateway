@@ -29,6 +29,14 @@ experience read the article below.
 
  * [The Right Way To Ask Users For iOS Permissions](http://techcrunch.com/2014/04/04/the-right-way-to-ask-users-for-ios-permissions/) (TechCrunch) 
 
+### Requires iOS 8
+
+Due to various updates to the permissions model this library currently requires iOS 8 and
+above which is now the common baseline for many apps due to the high install rate of iOS 8
+and 9. You can look at earlier versions of this library which used the older system APIs if
+you do need to support iOS 7. At this time there are no plans to support iOS versions before
+iOS 8.
+
 ### License
 
 MIT
