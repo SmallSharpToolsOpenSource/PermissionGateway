@@ -32,6 +32,7 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
 @property (nonatomic, copy) PGCompletionBlock completionBlock;
 
 @property (nonatomic, strong) CLLocationManager *locationManager;
+@property (nonatomic, strong) CNContactStore *contactStore;
 
 @end
 
@@ -382,15 +383,27 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
 }
 
 - (PGSystemPermissionStatus)systemStatusForContactsPermission {
-    CNAuthorizationStatus status = [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts];
-    
     PGSystemPermissionStatus systemStatus = PGSystemPermissionStatusUndefined;
     
-    if (status == CNAuthorizationStatusAuthorized) {
-        systemStatus = PGSystemPermissionStatusAllowed;
+    if ([NSProcessInfo processInfo].operatingSystemVersion.majorVersion == 8) {
+        ABAuthorizationStatus status = ABAddressBookGetAuthorizationStatus();
+        
+        if (status == kABAuthorizationStatusAuthorized) {
+            systemStatus = PGSystemPermissionStatusAllowed;
+        }
+        else if (status == kABAuthorizationStatusRestricted || status == kABAuthorizationStatusDenied) {
+            systemStatus = PGSystemPermissionStatusDenied;
+        }
     }
-    else if (status == CNAuthorizationStatusRestricted || status == CNAuthorizationStatusDenied) {
-        systemStatus = PGSystemPermissionStatusDenied;
+    else {
+        CNAuthorizationStatus status = [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts];
+        
+        if (status == CNAuthorizationStatusAuthorized) {
+            systemStatus = PGSystemPermissionStatusAllowed;
+        }
+        else if (status == CNAuthorizationStatusRestricted || status == CNAuthorizationStatusDenied) {
+            systemStatus = PGSystemPermissionStatusDenied;
+        }
     }
     
     return systemStatus;
@@ -498,14 +511,41 @@ typedef void(^PGCompletionBlock)(BOOL granted, NSError *error);
         return;
     }
     
-    CNContactStore *contactStore = [[CNContactStore alloc] init];
-    
-    [contactStore requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError * _Nullable error) {
-        // Note: The completion block is not on the main queue
-        dispatch_async(dispatch_get_main_queue(), ^{
-            completionBlock(granted, error);
+    if ([NSProcessInfo processInfo].operatingSystemVersion.majorVersion == 8) {
+        ABAddressBookRef addressBook = ABAddressBookCreateWithOptions(NULL, NULL);
+        ABAddressBookRequestAccessWithCompletion(addressBook, ^(bool granted, CFErrorRef error) {
+            if (error) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    completionBlock(NO, (__bridge NSError *)error);
+                });
+            }
+            else if (granted) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    completionBlock(YES, nil);
+                });
+            }
+            else {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    completionBlock(NO, nil);
+                });
+            }
         });
-    }];
+    }
+    else {
+        CNContactStore *contactStore = [[CNContactStore alloc] init];
+        __weak PGPermissionGatewayManager *weakSelf = self;
+        
+        [contactStore requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError * _Nullable error) {
+            // Note: The completion block is not on the main queue
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completionBlock(granted, error);
+            });
+            weakSelf.contactStore = nil;
+        }];
+        
+        // retain the instance so it does not go away when the method returns
+        self.contactStore = contactStore;
+    }
 }
 
 - (void)requestLocationAuthorizationWithCompletionBlock:(void (^)(BOOL authorized, NSError *error))completionBlock {
